@@ -1,0 +1,24 @@
+{
+  "name": "gs-analysis-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Repo zu meiner Bachelorthesis an der Hochschule Flensburg",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akatranlp/gs-analysis.git"
+  },
+  "keywords": [],
+  "author": "akatranlp",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/akatranlp/gs-analysis/issues"
+  },
+  "homepage": "https://github.com/akatranlp/gs-analysis#readme"
+}
