@@ -1,0 +1,25 @@
+{
+    "name": "gs-analysis-interfaces",
+    "version": "1.0.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "source": "./src/index.ts",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist/**"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+        "dev": "tsc -w"
+    },
+    "devDependencies": {
+        "tsconfig": "*",
+        "typescript": "^4.8.3"
+    },
+    "author": "akatranlp",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "zod": "^3.20.2"
+    }
+}
