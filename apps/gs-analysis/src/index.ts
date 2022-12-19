@@ -1,3 +1,3 @@
-import { log } from "logger"
+import { log } from "logger";
 
-log("Hello World")
+log("Hello World");

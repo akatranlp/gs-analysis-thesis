@@ -4,12 +4,19 @@
   "private": true,
   "description": "Repo zu meiner Bachelorthesis an der Hochschule Flensburg",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "dev": "turbo run dev --no-cache --parallel --continue",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "devDependencies": {
+    "prettier": "^2.7.1",
+    "turbo": "latest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/akatranlp/gs-analysis.git"
