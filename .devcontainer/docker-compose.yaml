@@ -10,7 +10,7 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
       - type: bind
-        source: /home/${USER}/.ssh/id_ed25519
+        source: ~/.ssh/id_ed25519
         target: /home/node/.ssh/id_ed25519
 
     command: sleep infinity
