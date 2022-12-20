@@ -1,35 +1,23 @@
 import {
-  gameServerInfoValidator,
-  processGameServerInfoValidator,
-  dockerGameServerInfoValidator,
-  GameServerInfo,
-  ProcessGameServerInfo,
-  DockerGameServerInfo,
-} from "./serverInfo/gameServerInfo";
-
-import {
   serverInfoValidator,
-  hwServerInfoValidator,
   vmServerInfoValidator,
   ServerInfo,
-  HWServerInfo,
   VMServerInfo,
-} from "./serverInfo/serverInfo";
+  gameServerInfoValidator,
+  GameServerInfo,
+  hostServerInfoValidator,
+  HostServerInfo,
+} from "./serverInfo";
+
+import { GameServer, HostServer } from "./server";
 
 export {
   gameServerInfoValidator,
-  processGameServerInfoValidator,
-  dockerGameServerInfoValidator,
   serverInfoValidator,
-  hwServerInfoValidator,
   vmServerInfoValidator,
+  hostServerInfoValidator,
+  GameServer,
+  HostServer,
 };
 
-export type {
-  GameServerInfo,
-  ProcessGameServerInfo,
-  DockerGameServerInfo,
-  ServerInfo,
-  HWServerInfo,
-  VMServerInfo,
-};
+export type { GameServerInfo, ServerInfo, HostServerInfo, VMServerInfo };
