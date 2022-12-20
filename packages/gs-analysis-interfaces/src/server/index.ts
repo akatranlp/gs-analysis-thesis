@@ -45,7 +45,7 @@ export class VMServer extends HostServer {
     this.hostServer = hostServer;
   }
 
-  override async statusInfo() {}
+  override async statusInfo() { }
 }
 
 export class GameServer {
@@ -69,7 +69,7 @@ export class GameServer {
     };
   }
 
-  protected async stop() {}
+  protected async stop() { }
 
   async stopIfInactive() {
     const statusInfo = await this.statusInfo();

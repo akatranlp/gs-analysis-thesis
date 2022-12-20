@@ -1,0 +1,29 @@
+{
+    "servers": [
+        {
+            "name": "hw-host01",
+            "type": "hw",
+            "ipAdress": "192.168.0.10",
+            "username": "user",
+            "password": "password",
+            "osType": "linux"
+        },
+        {
+            "name": "vm-host01",
+            "type": "vm",
+            "ipAdress": "192.168.0.50",
+            "username": "user",
+            "password": "password",
+            "osType": "linux",
+            "hostServer": "hw-host01"
+        },
+        {
+            "name": "mc-vanilla",
+            "type": "gs",
+            "gsType": "mc",
+            "hosting": "docker",
+            "hostServer": "vm-host01",
+            "internalName": "mc-vanilla"
+        }
+    ]
+}
