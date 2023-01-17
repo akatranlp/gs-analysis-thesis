@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  stat-retriever:
+    build: 
+      context: .
+      dockerfile: Dockerfile-stat-retriever
+    volumes:
+      - type: bind
+        source: /opt/gs-analysis/apps/stat-retriever/config.json
+        target: /app/config.json
+      - type: bind
+        source: /opt/gs-analysis/apps/stat-retriever/out
+        target: /app/out
+    environment:
+      - CONFIG_FILE=/app/config.json
