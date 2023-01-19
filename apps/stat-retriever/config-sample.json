@@ -3,8 +3,11 @@
     "username": "user",
     "password": "password",
     "WANInterfaceName": "vtnet2",
-    "outputFile": "/app/out/playerCount.csv",
-    "interval": "15",
+    "interval": 15,
+    "influxURL": "http://localhost:8086/",
+    "influxToken": "",
+    "influxOrg": "my-org",
+    "influxBucket": "my-bucket",
     "servers": [
         {
             "name": "mc",

@@ -1,5 +1,4 @@
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
-import fs from "fs/promises";
 import { APIClient } from "./APIClient";
 import { Config, Server } from "./Config";
 import { getMilliSecondsToInterval } from "./utils";
@@ -12,7 +11,6 @@ export class Application {
     private influxOrg: string
     private influxBucket: string
     private interval: number
-    private outfile: string
 
     constructor(config: Config) {
         const { host,
@@ -26,22 +24,9 @@ export class Application {
         this.influxBucket = config.influxBucket
         this.interval = config.interval
         this.servers = config.servers
-        this.outfile = config.outputFile
 
         this.apiClient = new APIClient(host, username, password, WANInterfaceName);
         this.influxClient = new InfluxDB({ url: influxURL, token: influxToken });
-    }
-
-    async writePlayerCountStatsToFile() {
-        const currentDate = new Date();
-        const dateString = currentDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
-        const timeString = currentDate.toLocaleTimeString("de-DE", { timeZone: "Europe/Berlin" });
-        let appendString = ""
-        for (const { ip, name, port, protocol } of this.servers) {
-            const states = await this.apiClient.getCurrentStates(ip, port, protocol);
-            appendString += `${dateString};${timeString};${name};${ip};${port};${protocol};${states.length};\n`
-        }
-        await fs.appendFile(this.outfile, appendString)
     }
 
     async writePlayerCountStatsToInfluxDB() {

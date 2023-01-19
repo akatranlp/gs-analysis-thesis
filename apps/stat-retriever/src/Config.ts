@@ -17,7 +17,6 @@ const configSchema = z.object({
     username: z.string(),
     password: z.string(),
     WANInterfaceName: z.string(),
-    outputFile: z.string(),
     interval: z.number().min(1).max(60),
     influxURL: z.string().url(),
     influxToken: z.string(),
