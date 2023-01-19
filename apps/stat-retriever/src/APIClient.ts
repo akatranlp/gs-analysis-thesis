@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Protocol } from "./Config";
 
 export class APIClient {
     private axiosInstance
@@ -14,7 +15,7 @@ export class APIClient {
         });
     }
 
-    async getCurrentStates(host: string, port: number, protocol: "tcp" | "udp") {
+    async getCurrentStates(host: string, port: number, protocol: Protocol) {
         const response = await this.axiosInstance.get("", {
             data: {
                 interface__startswith: this.interfaceName,
