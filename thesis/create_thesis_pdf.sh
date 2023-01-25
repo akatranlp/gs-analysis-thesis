@@ -5,7 +5,7 @@ THESIS_FILE=./Bachelorthesis.pdf
 filenames=`ls | grep -E "[0-9][0-9].*.md"`
 
 docker run --rm --volume "/opt/gs-analysis/thesis:/data" --user `id -u`:`id -g` \
-pandoc/latex $filenames --bibliography refs.bib --toc --citeproc --number-sections -o $RAW_THESIS_FILE
+pandoc/latex $filenames --defaults ./defaults.yaml
 
 docker run --rm --volume "/opt/gs-analysis/thesis:/data" --user `id -u`:`id -g` \
 akatranlp/pdfhandler merge $DECKBLATT_FILE $RAW_THESIS_FILE $THESIS_FILE

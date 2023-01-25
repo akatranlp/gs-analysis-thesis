@@ -1,0 +1,11 @@
+# https://pandoc.org/MANUAL.html#defaults-files
+output-file: Thesis.pdf
+dpi: 300
+columns: 72
+toc-depth: 3
+toc: true
+citeproc: true
+number-sections: true
+metadata:
+  bibliography: refs.bib
+  # csl: https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl
