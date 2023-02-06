@@ -1,11 +1,11 @@
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
 import { APIClient } from "./APIClient";
 import { Config, Server } from "./Config";
-import { getMilliSecondsToInterval } from "./utils";
+import { getMilliSecondsToInterval } from "utils";
 
 
 export class Application {
-    apiClient
+    private apiClient
     private influxClient
     private servers: Server[]
     private influxOrg: string

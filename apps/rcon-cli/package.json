@@ -1,5 +1,5 @@
 {
-    "name": "gs-analysis",
+    "name": "rcon-cli",
     "version": "1.0.0",
     "main": "./dist/index.js",
     "source": "/src/index.ts",
@@ -13,12 +13,8 @@
     },
     "dependencies": {
         "@types/node": "^18.11.17",
-        "fastify": "^4.12.0",
-        "gs-analysis-interfaces": "*",
-        "logger": "*",
-        "rcon": "*",
-        "utils": "*",
-        "zod": "^3.20.2"
+        "ssh-playercount": "*",
+        "rcon": "*"
     },
     "devDependencies": {
         "tsconfig": "*",

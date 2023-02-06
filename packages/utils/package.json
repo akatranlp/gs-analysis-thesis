@@ -1,5 +1,5 @@
 {
-    "name": "gs-analysis-interfaces",
+    "name": "utils",
     "version": "1.0.0",
     "private": true,
     "main": "./dist/index.js",
@@ -13,19 +13,13 @@
         "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
         "dev": "tsc -w"
     },
-    "dependencies": {
-        "dockerode": "^3.3.4",
-        "node-ssh": "^13.0.1",
-        "promise-socket": "^7.0.0",
-        "rcon": "*",
-        "ssh-playercount": "*",
-        "zod": "^3.20.2"
-    },
     "devDependencies": {
-        "@types/dockerode": "^3.3.14",
         "tsconfig": "*",
         "typescript": "^4.8.3"
     },
     "author": "akatranlp",
-    "license": "GPL-3.0"
+    "license": "GPL-3.0",
+    "dependencies": {
+        "node-ssh": "^13.0.1"
+    }
 }
