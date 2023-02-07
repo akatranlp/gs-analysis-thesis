@@ -1,5 +1,5 @@
 import { HostServerInfo, GameServerInfo, RconGameServerInfo } from "./serverInfo";
-import { RconClient } from "rcon";
+import { OldRconClient } from "rcon";
 import { SSHClient } from "ssh-playercount";
 import { NodeSSH } from "node-ssh";
 import Docker, { DockerOptions } from "dockerode";
@@ -36,7 +36,7 @@ export class HostServer {
         }
     }
 
-    async isOnline(hostIsOnline: boolean | null): Promise<boolean> {
+    async isOnline(hostIsOnline: boolean | null) {
         if (hostIsOnline === false) {
             return false;
         } else if (hostIsOnline == null) {
@@ -56,17 +56,36 @@ export class HostServer {
         }
     }
 
+    async stopIfNeeded(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
+        if (!await this.isOnline(hostIsOnline)) return await this.statusInfo(hostIsOnline, timeout);
+
+        let isInactive = true;
+        for (const child of this.children) {
+            const childInfo = await child.stopIfNeeded(hostIsOnline, timeout);
+            if (childInfo.isOnline) isInactive = false;
+        }
+        const info = await this.statusInfo(hostIsOnline, timeout);
+        if (isInactive) {
+            await this.stop();
+            return {
+                ...info,
+                isOnline: false
+            }
+        }
+        return info;
+    }
+
     appendChild(child: GameServer | HostServer) {
         this.children.push(child);
     }
 
-    async statusInfo(hostIsOnline: boolean | null): Promise<StatusInfo> {
+    async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
         const isOnline = await this.isOnline(hostIsOnline)
 
         let isInactive = true
         const childrenInfo = []
         for (const child of this.children) {
-            const info = await child.statusInfo(isOnline);
+            const info = await child.statusInfo(isOnline, timeout);
             childrenInfo.push(info);
             if (!info.isInactive) isInactive = false;
         }
@@ -83,23 +102,18 @@ export class HostServer {
         }
     }
 
-    async stopIfInactive() {
-        if ((await this.statusInfo(null)).isInactive)
-            return this.stop();
-    }
-
     async stop() {
         if (!this.sshClient.isConnected()) {
             await this.sshClient.connect(this.getSSHOptions());
         }
-        await this.sshClient.execCommand("shutdown -h now");
+        await this.sshClient.execCommand("sudo systemctl poweroff");
         this.sshClient.dispose();
     }
 
-    async shutdownGameserver({ internalName }: GameServerInfo): Promise<void> {
+    async shutdownGameserver({ internalName }: GameServerInfo) {
         if (!this.dockerClient) throw new Error("docker is not installed");
         for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
-            if (containerInfo.Names[0] === internalName) {
+            if (containerInfo.Names[0] === `/${internalName}`) {
                 const container = this.dockerClient.getContainer(containerInfo.Id);
                 return container.stop()
             }
@@ -107,7 +121,7 @@ export class HostServer {
         throw new Error("Container not found");
     }
 
-    async checkGameServerStatus({ internalName }: GameServerInfo): Promise<boolean> {
+    async checkGameServerStatus({ internalName }: GameServerInfo) {
         if (!this.dockerClient) throw new Error("docker is not installed");
         for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
             if (containerInfo.Names[0] === `/${internalName}`) {
@@ -117,7 +131,7 @@ export class HostServer {
         throw new Error("Container not found");
     }
 
-    getIpAdress(): string {
+    getIpAdress() {
         return this.hostServerInfo.ipAdress;
     }
 
@@ -136,13 +150,12 @@ export class GameServer {
 
     constructor(
         public gameServerInfo: GameServerInfo,
-        private timeout: number,
         public hostServer: HostServer
     ) {
         this.sshClient = new SSHClient(hostServer.getSSHOptions(), { port: this.gameServerInfo.gamePort })
     }
 
-    protected checkInactivity(playerCount: number): boolean {
+    protected checkInactivity(playerCount: number, timeout: number) {
         if (playerCount !== 0) {
             this.inactiveTime = -1;
             return false;
@@ -153,14 +166,14 @@ export class GameServer {
             return false;
         }
 
-        if ((Date.now() - this.inactiveTime) < this.timeout * 60 * 1000) {
+        if ((Date.now() - this.inactiveTime) < timeout * 60 * 1000) {
             return false;
         }
 
         return true;
     }
 
-    async isOnline(hostIsOnline: boolean | null): Promise<boolean> {
+    async isOnline(hostIsOnline: boolean | null) {
         if (hostIsOnline === false) return false;
         if (hostIsOnline == null) {
             if (!await this.hostServer.isOnline(null)) return false;
@@ -168,15 +181,25 @@ export class GameServer {
         return this.hostServer.checkGameServerStatus(this.gameServerInfo);
     }
 
-    async statusInfo(hostIsOnline: boolean | null): Promise<StatusInfo> {
-        const isOnline = await this.isOnline(hostIsOnline);
+    async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
+        let isOnline = await this.isOnline(hostIsOnline);
 
         let playerCount = 0
+
+        if (isOnline) {
+            if (!this.sshClient.isConnected()) {
+                try {
+                    await this.sshClient.connect();
+                } catch (err) {
+                    isOnline = false;
+                }
+            }
+        }
+
         let isInactive
         if (isOnline) {
-            if (!this.sshClient.isConnected()) await this.sshClient.connect();
             playerCount = await this.sshClient.getPlayerCount();
-            isInactive = this.checkInactivity(playerCount);
+            isInactive = this.checkInactivity(playerCount, timeout);
         } else {
             this.inactiveTime = -1;
             isInactive = false;
@@ -194,16 +217,22 @@ export class GameServer {
         }
     }
 
+    async stopIfNeeded(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
+        const info = await this.statusInfo(hostIsOnline, timeout);
+        if (!info.isOnline) return info;
+        if (info.isInactive) {
+            await this.stop();
+            return {
+                ...info,
+                isOnline: false
+            }
+        }
+        return info;
+    }
+
     stop() {
         if (this.sshClient.isConnected()) this.sshClient.disconnect();
         return this.hostServer.shutdownGameserver(this.gameServerInfo);
-    }
-
-    async stopIfInactive() {
-        const statusInfo = await this.statusInfo(null);
-        if (statusInfo.isInactive) {
-            await this.stop();
-        }
     }
 }
 
@@ -234,7 +263,6 @@ const playerCountCommands: Record<string, { command: string, outputConverter: (d
     conan: {
         command: "listplayers",
         outputConverter: (data) => {
-            console.log(data);
             const value = data.match(/\n/)?.length
             return value ? value - 1 : 0
         }
@@ -242,11 +270,11 @@ const playerCountCommands: Record<string, { command: string, outputConverter: (d
 }
 
 export class RconGameServer extends GameServer {
-    private rconClient: RconClient
+    private rconClient: OldRconClient
 
-    constructor(options: RconGameServerInfo, timeout: number, hostServer: HostServer) {
-        super(options, timeout, hostServer)
-        this.rconClient = new RconClient({
+    constructor(options: RconGameServerInfo, hostServer: HostServer) {
+        super(options, hostServer)
+        this.rconClient = new OldRconClient({
             host: hostServer.getIpAdress(),
             port: options.rconPort,
             password: options.rconPassword
@@ -258,19 +286,30 @@ export class RconGameServer extends GameServer {
         return this.hostServer.shutdownGameserver(this.gameServerInfo);
     }
 
-    override async statusInfo(hostIsOnline: boolean | null): Promise<StatusInfo> {
-        const isOnline = await this.isOnline(hostIsOnline);
+    override async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
+        let isOnline = await this.isOnline(hostIsOnline);
 
         let playerCount = 0;
         let isInactive;
+
         if (isOnline) {
-            if (!this.rconClient.isConnected()) await this.rconClient.connect();
+            if (!this.rconClient.isConnected()) {
+                try {
+                    await this.rconClient.connect();
+                } catch (err) {
+                    isOnline = false;
+                }
+            }
+        }
+
+
+        if (isOnline) {
             const commands = playerCountCommands[this.gameServerInfo.gsType];
             if (!commands) throw new Error("GameServer Type not implemented yet!");
             const response = await this.rconClient.sendCommand(commands.command);
             playerCount = commands.outputConverter(response);
             if (Number.isNaN(playerCount)) throw new Error("Playercount is NaN!");
-            isInactive = this.checkInactivity(playerCount);
+            isInactive = this.checkInactivity(playerCount, timeout);
         } else {
             this.inactiveTime = -1;
             isInactive = false;
@@ -286,5 +325,11 @@ export class RconGameServer extends GameServer {
             rcon: true,
             childrenInfo: null
         }
+    }
+
+    async sendCommand(command: string) {
+        if (!await this.isOnline(null)) throw new Error("host is not online!");
+        if (!this.rconClient.isConnected()) await this.rconClient.connect();
+        return this.rconClient.sendCommand(command);
     }
 }
