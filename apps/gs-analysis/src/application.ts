@@ -1,4 +1,3 @@
-import { PluginLoader } from "./pluginLoader";
 import { getMilliSecondsToInterval } from "utils";
 import {
   serverInfoValidator,
@@ -13,7 +12,6 @@ import {
 } from "gs-analysis-interfaces";
 
 import { z } from "zod";
-import fs from "fs/promises";
 import Fastify from "fastify";
 
 export const configParser = z.object({
@@ -26,7 +24,6 @@ export const configParser = z.object({
 type Config = z.infer<typeof configParser>
 
 export class Application {
-  private pluginLoader = new PluginLoader();
   private intervalId?: NodeJS.Timer;
   private continueLoop = true;
   private rootServers: Record<string, HostServer> = {};
@@ -76,6 +73,13 @@ export class Application {
       return { hello: "world" }
     });
 
+    this.fastify.get("/api/status", async () => {
+      return {
+        lastStatusUpdate: this.lastStatusUpdate,
+        statusGraph: this.statusGraph
+      };
+    })
+
     try {
       await this.fastify.listen({ port: this.config.apiPort });
     } catch (err) {
@@ -97,7 +101,7 @@ export class Application {
     }
     this.statusGraph = statusGraph;
     this.lastStatusUpdate = new Date();
-    console.log(this.lastStatusUpdate);
+    console.log(this.lastStatusUpdate.toLocaleString("de-DE"));
 
     if (this.continueLoop) {
       this.intervalId = setTimeout(async () => {
