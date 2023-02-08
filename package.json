@@ -24,6 +24,7 @@
     "type": "git",
     "url": "git+https://github.com/akatranlp/gs-analysis.git"
   },
+  "module": "commonjs",
   "keywords": [],
   "author": "akatranlp",
   "license": "GPL-3.0",

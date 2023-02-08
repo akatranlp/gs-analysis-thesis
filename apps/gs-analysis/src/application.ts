@@ -32,7 +32,7 @@ export class Application {
 
   constructor(public config: Config) { }
 
-  private async parseConfig() {
+  async parseConfig() {
     const hwServers = this.config.servers.filter(entry => entry.type === "hw").map(entry => hostServerInfoValidator.parse(entry));
 
     for (const rootServerConfig of hwServers.filter(entry => entry.hostServer == null)) {

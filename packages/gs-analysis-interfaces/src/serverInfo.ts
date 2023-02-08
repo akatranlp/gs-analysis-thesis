@@ -15,6 +15,11 @@ export const hostServerInfoValidator = serverInfoValidator
         username: z.string(),
         password: z.string(),
         dockerInstalled: z.boolean().default(false),
+        hostType: z.enum(["proxmox", "none"]).optional(),
+        pmURL: z.string().url().optional(),
+        pmUsername: z.string().optional(),
+        pmTokenName: z.string().optional(),
+        pmToken: z.string().optional(),
         hostServer: z.string().optional(),
     });
 

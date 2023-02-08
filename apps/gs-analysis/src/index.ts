@@ -5,8 +5,10 @@ import { runApi } from "./api";
 const main = async () => {
     const exampleConfig = await configParser.parseAsync(JSON.parse(await fs.readFile("./config.json", "utf8")));
     const app = new Application(exampleConfig);
-    await app.run();
-    await runApi(app);
+    await app.parseConfig();
+    app.rootServers["pve03"].stop();
+    //await app.run();
+    //await runApi(app);
 };
 
 main();

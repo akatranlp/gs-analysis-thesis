@@ -1,9 +1,11 @@
 import { HostServerInfo, GameServerInfo, RconGameServerInfo } from "./serverInfo";
+import rconCommandsMap from "./rconCommandsMap";
 import { OldRconClient } from "rcon";
 import { SSHClient } from "ssh-playercount";
 import { NodeSSH } from "node-ssh";
 import Docker, { DockerOptions } from "dockerode";
 import { PromiseSocket } from "promise-socket";
+import axios, { AxiosInstance } from "axios";
 
 export interface StatusInfo {
     isOnline: boolean
@@ -16,10 +18,15 @@ export interface StatusInfo {
     childrenInfo: StatusInfo[] | null
 }
 
+interface PMResponse<T> {
+    data: T
+}
+
 export class HostServer {
     private children: (GameServer | HostServer)[] = [];
     dockerClient: Docker | null = null;
     private sshClient = new NodeSSH();
+    private axios: AxiosInstance | null = null
 
     constructor(
         private hostServerInfo: HostServerInfo,
@@ -33,6 +40,14 @@ export class HostServer {
                 username: hostServerInfo.username,
                 password: hostServerInfo.password
             } as DockerOptions)
+        }
+        if (hostServerInfo.hostType === "proxmox") {
+            this.axios = axios.create({
+                baseURL: `${hostServerInfo.pmURL}/api2/json/`,
+                headers: {
+                    Authorization: `PVEAPIToken=${this.hostServerInfo.pmUsername}!${this.hostServerInfo.pmTokenName}=${this.hostServerInfo.pmToken}`
+                }
+            })
         }
     }
 
@@ -102,15 +117,55 @@ export class HostServer {
         }
     }
 
+    async shutdownVM(name: string) {
+        if (this.hostServerInfo.hostType == null) throw new Error("No VM Host");
+        if (!await this.isOnline(null)) return;
+        if (this.hostServerInfo.hostType === "none") throw new Error("Not implemented");
+        if (this.hostServerInfo.hostType !== "proxmox") throw new Error("Not implemented");
+
+        try {
+            interface VM {
+                vmid: number,
+                name: string,
+                status: "stopped" | "running",
+            }
+            const response = await this.axios!.get<PMResponse<VM[]>>(`nodes/${this.hostServerInfo.name}/qemu/`);
+
+            for (const vm of response.data.data) {
+                if (vm.name === name) {
+                    const response = await this.axios!.get<PMResponse<VM>>(`nodes/${this.hostServerInfo.name}/qemu/${vm.vmid}/status/current`);
+                    if (response.data.data.status === "stopped") return;
+                    await this.axios!.post<PMResponse<string>>(`nodes/${this.hostServerInfo.name}/qemu/${vm.vmid}/status/shutdown`);
+                }
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async stop() {
+        if (!await this.isOnline(null)) return;
+        if (this.hostServer && this.hostServer.hostServerInfo.hostType === "proxmox") {
+            return this.hostServer.shutdownVM(this.hostServerInfo.name)
+        }
+        if (this.hostServerInfo.hostType === "proxmox") {
+            try {
+                return this.axios!.post<PMResponse<null>>(`nodes/${this.hostServerInfo.name}/status`, {
+                    command: "shutdown"
+                });
+            } catch (err) {
+                throw err;
+            }
+        }
         if (!this.sshClient.isConnected()) {
             await this.sshClient.connect(this.getSSHOptions());
         }
-        console.log(await this.sshClient.execCommand("sudo systemctl poweroff"));
+        await this.sshClient.execCommand("sudo systemctl poweroff");
         this.sshClient.dispose();
     }
 
     async shutdownGameserver({ internalName }: GameServerInfo) {
+        if (!await this.isOnline(null)) return;
         if (!this.dockerClient) throw new Error("docker is not installed");
         for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
             if (containerInfo.Names[0] === `/${internalName}`) {
@@ -122,6 +177,7 @@ export class HostServer {
     }
 
     async checkGameServerStatus({ internalName }: GameServerInfo) {
+        if (!await this.isOnline(null)) return false;
         if (!this.dockerClient) throw new Error("docker is not installed");
         for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
             if (containerInfo.Names[0] === `/${internalName}`) {
@@ -236,39 +292,6 @@ export class GameServer {
     }
 }
 
-const playerCountCommands: Record<string, { command: string, outputConverter: (data: string) => number }> = {
-    mc: {
-        command: "list",
-        outputConverter: (data) => {
-            const value = data.match(/\d/)?.[0]
-            if (!value) throw new Error("outputValue not defined")
-            return parseInt(value)
-        }
-    },
-    ttt: {
-        command: "ttt_print_playercount",
-        outputConverter: (data) => {
-            console.log(data)
-            return 0
-        },
-    },
-    tf2: {
-        command: "users",
-        outputConverter: (data) => {
-            const value = data.split("\n").at(-2)
-            if (!value) throw new Error("outputValue not defined")
-            return parseInt(value)
-        }
-    },
-    conan: {
-        command: "listplayers",
-        outputConverter: (data) => {
-            const value = data.match(/\n/)?.length
-            return value ? value - 1 : 0
-        }
-    },
-}
-
 export class RconGameServer extends GameServer {
     private rconClient: OldRconClient
 
@@ -304,7 +327,7 @@ export class RconGameServer extends GameServer {
 
 
         if (isOnline) {
-            const commands = playerCountCommands[this.gameServerInfo.gsType];
+            const commands = rconCommandsMap[this.gameServerInfo.gsType];
             if (!commands) throw new Error("GameServer Type not implemented yet!");
             const response = await this.rconClient.sendCommand(commands.command);
             playerCount = commands.outputConverter(response);
