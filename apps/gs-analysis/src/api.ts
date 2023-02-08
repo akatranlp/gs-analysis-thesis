@@ -39,7 +39,8 @@ const statusRouter = (app: Application, fastify: FastifyInstance) => {
 const configUpdateRouter = (app: Application, fastify: FastifyInstance) => {
     const inputSchema = configParser.pick({
         timeout: true,
-        interval: true
+        interval: true,
+        stopIfNeeded: true
     }).partial().strict();
 
     type CustomRequest = FastifyRequest<{ Body: z.infer<typeof inputSchema> }>
@@ -49,6 +50,7 @@ const configUpdateRouter = (app: Application, fastify: FastifyInstance) => {
             const body = await inputSchema.parseAsync(req.body);
             if (body.interval) app.config.interval = body.interval
             if (body.timeout) app.config.timeout = body.timeout
+            if (body.stopIfNeeded) app.config.stopIfNeeded = body.stopIfNeeded
             return {};
         })
     ));
@@ -121,6 +123,7 @@ export const runApi = async (app: Application) => {
 
     try {
         await fastify.listen({ port: app.config.apiPort, host: "0.0.0.0" });
+        console.log(`API ready on Port ${app.config.apiPort}`);
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);

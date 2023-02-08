@@ -13,6 +13,8 @@ import {
 import { z } from "zod";
 
 export const configParser = z.object({
+  discordBotToken: z.string(),
+  stopIfNeeded: z.boolean(),
   apiPort: z.number().min(0).max(65535),
   timeout: z.number().min(1).max(60),
   interval: z.number().min(0.1).max(60),
@@ -75,7 +77,12 @@ export class Application {
   private async loop() {
     const statusGraph: Record<string, StatusInfo> = {}
     for (const [name, server] of Object.entries(this.rootServers)) {
-      const status = await server.statusInfo(null, this.config.timeout);
+      let status;
+      if (this.config.stopIfNeeded) {
+        status = await server.stopIfNeeded(null, this.config.timeout);
+      } else {
+        status = await server.statusInfo(null, this.config.timeout);
+      }
       statusGraph[name] = status;
     }
     this.statusGraph = statusGraph;
