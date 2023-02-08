@@ -104,7 +104,7 @@ const startStopServerRouter = (app: Application, fastify: FastifyInstance) => {
 }
 
 export const runApi = async (app: Application) => {
-    const fastify = Fastify({ logger: false });
+    const fastify = Fastify({ logger: true });
 
     fastify.register(FastifyStatic, {
         root: path.join(__dirname, "public")
@@ -120,7 +120,7 @@ export const runApi = async (app: Application) => {
     startStopServerRouter(app, fastify);
 
     try {
-        await fastify.listen({ port: app.config.apiPort });
+        await fastify.listen({ port: app.config.apiPort, host: "0.0.0.0" });
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);

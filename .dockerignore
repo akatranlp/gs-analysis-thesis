@@ -1,0 +1,10 @@
+.git
+*Dockerfile*
+*docker-compose*
+node_modules
+
+*/**/dist/
+*/**/.turbo/
+
+# */**/config.json
+*/**/out

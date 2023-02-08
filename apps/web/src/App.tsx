@@ -17,22 +17,40 @@ interface ServerStatus {
 }
 
 const getServerStatus = async () => {
-  const response: ServerStatus = await axiosInstance.get("servers");
-  return response;
+  const response = await axiosInstance.get("servers");
+  return response.data as ServerStatus;
 }
 
-function App() {
+const RenderStatusInfo = ({ info }: { info: StatusInfo }): JSX.Element => {
+  return (
+    <div className="border border-black p-5">
+      <div>
+        <div>Name: {info.name}</div>
+        <div>isInactive: {info.isInactive ? "inactive" : "active"}</div>
+        <div>isOnline: {info.isOnline ? "online" : "offline"}</div>
+        {info.playerCount != null && <div>PlayerCount: {info.playerCount}</div>}
+        {info.maxPlayers != null && <div>MaxPlayerCount: {info.maxPlayers}</div>}
+        {info.rcon != null && <div>Rcon: {info.rcon}</div>}
+      </div>
+      <div>
+        {info.childrenInfo && info.childrenInfo.map(entry => <RenderStatusInfo info={entry} />)}
+      </div>
+    </div>
+  )
+}
+
+const App = () => {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ["serverStatus"], queryFn: getServerStatus });
 
   return (
-    <div className="App">
+    <div className="flex flex-col gap-3 justify-center items-center">
       <h1 className="text-3xl font-bold text-blue-600">Hello Friends</h1>
-      {query.isLoading ?
-        <p className="font-bold">Loading</p> :
-        query.isError ?
-          <p>Error{JSON.stringify(query.error)}</p> :
-          JSON.stringify(query.data.statusGraph)}
+      {query.data && <>
+        <div>{new Date(query.data.lastStatusUpdate).toLocaleString("de-DE")}</div>
+        <div>{Object.values(query.data.statusGraph).map(entry => <RenderStatusInfo info={entry} />)}</div>
+      </>
+      }
     </div>
   )
 }

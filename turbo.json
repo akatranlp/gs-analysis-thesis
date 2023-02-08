@@ -10,6 +10,15 @@
                 "^build"
             ]
         },
+        "prod-build": {
+            "outputs": [
+                "dist/**",
+                "build/**"
+            ],
+            "dependsOn": [
+                "^build"
+            ]
+        },
         "dev": {
             "cache": false
         },

@@ -106,7 +106,7 @@ export class HostServer {
         if (!this.sshClient.isConnected()) {
             await this.sshClient.connect(this.getSSHOptions());
         }
-        await this.sshClient.execCommand("sudo systemctl poweroff");
+        console.log(await this.sshClient.execCommand("sudo systemctl poweroff"));
         this.sshClient.dispose();
     }
 
