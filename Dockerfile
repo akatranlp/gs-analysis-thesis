@@ -63,4 +63,4 @@ COPY --from=installerWeb /app/apps/web/dist/ /app/apps/gs-analysis/dist/public/
 
 USER root
 EXPOSE 3000
-CMD npm run start -w=gs-analysis
+CMD npm run deployCommands -w=gs-analysis && npm run start -w=gs-analysis

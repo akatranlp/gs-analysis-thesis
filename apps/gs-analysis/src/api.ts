@@ -1,9 +1,10 @@
-import { Application, configParser } from "./application"
+import { Application } from "./application";
 import { z } from "zod";
 import Fastify, { FastifyInstance, FastifyRequest } from "fastify";
 import FastifyStatic from "@fastify/static";
 import path from "path";
-import { GameServer, HostServer, RconGameServer } from "gs-analysis-interfaces";
+import { RconGameServer } from "gs-analysis-interfaces";
+import { configParser } from "./config";
 
 const wrapZodError = async <T>(callback: () => Promise<T>) => {
     try {
@@ -14,29 +15,21 @@ const wrapZodError = async <T>(callback: () => Promise<T>) => {
     }
 }
 
-const statusRouter = (app: Application, fastify: FastifyInstance) => {
-    fastify.get("/api/servers", async () => {
-        return {
-            lastStatusUpdate: app.lastStatusUpdate,
-            statusGraph: app.statusGraph
-        };
-    });
+const statusRouter = (fastify: FastifyInstance, app: Application) => {
+    fastify.get("/api/servers", async () => ({
+        lastStatusUpdate: app.lastStatusUpdate,
+        statusGraph: await app.getServerStatusInfo(false, null)
+    }));
 
     const inputSchema = z.object({ servername: z.string() });
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema> }>
 
-    fastify.get("/api/servers/:servername", async (req: CustomRequest, res) => {
-        let server: HostServer | GameServer | undefined;
-        if (req.params.servername in app.rootServers) server = app.rootServers[req.params.servername];
-        if (req.params.servername in app.hwServers) server = app.hwServers[req.params.servername];
-        if (req.params.servername in app.gsServers) server = app.gsServers[req.params.servername];
-        if (!server) throw new Error("Server not configured!");
-
-        return server.statusInfo(null, app.config.timeout);
-    });
+    fastify.get("/api/servers/:servername", (req: CustomRequest, res) => (
+        app.getServerStatusInfo(false, req.params.servername)
+    ));
 }
 
-const configUpdateRouter = (app: Application, fastify: FastifyInstance) => {
+const configUpdateRouter = (fastify: FastifyInstance, app: Application) => {
     const inputSchema = configParser.pick({
         timeout: true,
         interval: true,
@@ -56,7 +49,7 @@ const configUpdateRouter = (app: Application, fastify: FastifyInstance) => {
     ));
 }
 
-const rconCommandRouter = (app: Application, fastify: FastifyInstance) => {
+const rconCommandRouter = (fastify: FastifyInstance, app: Application) => {
     const inputSchema = z.object({ servername: z.string() });
     const bodySchema = z.object({ command: z.string() });
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema>, Body: z.infer<typeof bodySchema> }>
@@ -73,7 +66,7 @@ const rconCommandRouter = (app: Application, fastify: FastifyInstance) => {
     ));
 }
 
-const startStopServerRouter = (app: Application, fastify: FastifyInstance) => {
+const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
     const inputSchema = z.object({ servername: z.string() });
     const bodySchema = z.object({ state: z.enum(["start", "stop", "stopin"]) });
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema>, Body: z.infer<typeof bodySchema> }>
@@ -86,7 +79,7 @@ const startStopServerRouter = (app: Application, fastify: FastifyInstance) => {
             } else if (body.state === "stop") {
                 throw new Error("not implemented");
             } else if (body.state === "stopin") {
-                return await app.stopServersIfNeeded(undefined, 0);
+                return await app.stopServersIfNeeded(null, 0);
             }
         })
     ));
@@ -105,8 +98,8 @@ const startStopServerRouter = (app: Application, fastify: FastifyInstance) => {
     ))
 }
 
-export const runApi = async (app: Application) => {
-    const fastify = Fastify({ logger: true });
+export const createFastifyApi = (app: Application) => {
+    const fastify = Fastify({ logger: false });
 
     fastify.register(FastifyStatic, {
         root: path.join(__dirname, "public")
@@ -116,16 +109,10 @@ export const runApi = async (app: Application) => {
         return { hello: "world" }
     });
 
-    statusRouter(app, fastify);
-    rconCommandRouter(app, fastify);
-    configUpdateRouter(app, fastify);
-    startStopServerRouter(app, fastify);
+    statusRouter(fastify, app);
+    rconCommandRouter(fastify, app);
+    configUpdateRouter(fastify, app);
+    startStopServerRouter(fastify, app);
 
-    try {
-        await fastify.listen({ port: app.config.apiPort, host: "0.0.0.0" });
-        console.log(`API ready on Port ${app.config.apiPort}`);
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-    }
+    return fastify;
 }
