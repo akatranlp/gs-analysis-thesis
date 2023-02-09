@@ -5,7 +5,9 @@ import { SSHClient } from "ssh-playercount";
 import { NodeSSH } from "node-ssh";
 import Docker, { DockerOptions } from "dockerode";
 import { PromiseSocket } from "promise-socket";
+import { DgramAsPromised } from "dgram-as-promised";
 import axios, { AxiosInstance } from "axios";
+import { delay } from "utils";
 
 export interface StatusInfo {
     isOnline: boolean
@@ -20,6 +22,19 @@ export interface StatusInfo {
 
 interface PMResponse<T> {
     data: T
+}
+
+const sendMagicPacket = async ({ mac, ipAdress }: HostServerInfo) => {
+    if (!mac) throw new Error("no mac provided!");
+    const packet = Buffer.from('ff'.repeat(6) + mac.replaceAll(mac[2], '').repeat(16), 'hex');
+    const broadcast = `${ipAdress.substring(0, ipAdress.lastIndexOf("."))}.255`;
+    const socket = DgramAsPromised.createSocket("udp4");
+    await socket.bind();
+    socket.setBroadcast(true);
+    for (let i = 3; i > 0; i--) {
+        await socket.send(packet, 9, broadcast);
+    }
+    await socket.close();
 }
 
 export class HostServer {
@@ -37,6 +52,7 @@ export class HostServer {
                 protocol: "ssh",
                 host: hostServerInfo.ipAdress,
                 port: 22,
+                timeout: 25,
                 username: hostServerInfo.username,
                 password: hostServerInfo.password
             } as DockerOptions)
@@ -63,8 +79,10 @@ export class HostServer {
         const socket = new PromiseSocket();
         socket.setTimeout(25);
         try {
+            console.log("Before connecting!", this.hostServerInfo.name)
             await socket.connect(22, this.hostServerInfo.ipAdress);
             await socket.end();
+            console.log("After connecting!", this.hostServerInfo.name)
             return true;
         } catch (err) {
             return false;
@@ -102,7 +120,7 @@ export class HostServer {
         for (const child of this.children) {
             const info = await child.statusInfo(isOnline, timeout);
             childrenInfo.push(info);
-            if (!info.isInactive) isInactive = false;
+            if (info.isOnline && !info.isInactive) isInactive = false;
         }
 
         return {
@@ -143,6 +161,32 @@ export class HostServer {
         }
     }
 
+    async startVM(name: string) {
+        if (this.hostServerInfo.hostType == null) throw new Error("No VM Host");
+        if (!await this.isOnline(null)) return;
+        if (this.hostServerInfo.hostType === "none") throw new Error("Not implemented");
+        if (this.hostServerInfo.hostType !== "proxmox") throw new Error("Not implemented");
+
+        try {
+            interface VM {
+                vmid: number,
+                name: string,
+                status: "stopped" | "running",
+            }
+            const response = await this.axios!.get<PMResponse<VM[]>>(`nodes/${this.hostServerInfo.name}/qemu/`);
+
+            for (const vm of response.data.data) {
+                if (vm.name === name) {
+                    const response = await this.axios!.get<PMResponse<VM>>(`nodes/${this.hostServerInfo.name}/qemu/${vm.vmid}/status/current`);
+                    if (response.data.data.status === "running") return;
+                    await this.axios!.post<PMResponse<string>>(`nodes/${this.hostServerInfo.name}/qemu/${vm.vmid}/status/start`);
+                }
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async stop() {
         if (!await this.isOnline(null)) return;
         if (this.hostServer && this.hostServer.hostServerInfo.hostType === "proxmox") {
@@ -164,7 +208,36 @@ export class HostServer {
         this.sshClient.dispose();
     }
 
-    async shutdownGameserver({ internalName }: GameServerInfo) {
+    async start() {
+        if (!this.hostServer) {
+            await sendMagicPacket(this.hostServerInfo);
+            await delay(30000);
+            return this.isOnline(null);
+        }
+        if (!await this.hostServer.isOnline(null)) {
+            await this.hostServer.start();
+        }
+        if (this.hostServer.hostServerInfo.hostType === "proxmox") {
+            await this.hostServer.startVM(this.hostServerInfo.name);
+            await delay(10000);
+            return this.isOnline(true);
+        }
+        throw new Error("not implemented!");
+    }
+
+    async startGameServer(internalName: string) {
+        if (!await this.isOnline(null)) return;
+        if (!this.dockerClient) throw new Error("docker is not installed");
+        for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
+            if (containerInfo.Names[0] === `/${internalName}`) {
+                const container = this.dockerClient.getContainer(containerInfo.Id);
+                return container.start()
+            }
+        }
+        throw new Error("Container not found");
+    }
+
+    async shutdownGameserver(internalName: string) {
         if (!await this.isOnline(null)) return;
         if (!this.dockerClient) throw new Error("docker is not installed");
         for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
@@ -176,13 +249,20 @@ export class HostServer {
         throw new Error("Container not found");
     }
 
-    async checkGameServerStatus({ internalName }: GameServerInfo) {
-        if (!await this.isOnline(null)) return false;
+    async checkGameServerStatus(hostIsOnline: boolean | null, internalName: string) {
+        if (hostIsOnline === null) {
+            hostIsOnline = await this.isOnline(null);
+        }
+        if (hostIsOnline === false) return false;
         if (!this.dockerClient) throw new Error("docker is not installed");
-        for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
-            if (containerInfo.Names[0] === `/${internalName}`) {
-                return containerInfo.State === "running";
+        try {
+            for (const containerInfo of await this.dockerClient.listContainers({ all: true })) {
+                if (containerInfo.Names[0] === `/${internalName}`) {
+                    return containerInfo.State === "running";
+                }
             }
+        } catch (err) {
+            return false;
         }
         throw new Error("Container not found");
     }
@@ -230,11 +310,11 @@ export class GameServer {
     }
 
     async isOnline(hostIsOnline: boolean | null) {
-        if (hostIsOnline === false) return false;
         if (hostIsOnline == null) {
-            if (!await this.hostServer.isOnline(null)) return false;
+            hostIsOnline = !await this.hostServer.isOnline(null);
         }
-        return this.hostServer.checkGameServerStatus(this.gameServerInfo);
+        if (hostIsOnline === false) return false;
+        return this.hostServer.checkGameServerStatus(hostIsOnline, this.gameServerInfo.internalName);
     }
 
     async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
@@ -286,9 +366,13 @@ export class GameServer {
         return info;
     }
 
+    start() {
+        return this.hostServer.startGameServer(this.gameServerInfo.internalName)
+    }
+
     stop() {
         if (this.sshClient.isConnected()) this.sshClient.disconnect();
-        return this.hostServer.shutdownGameserver(this.gameServerInfo);
+        return this.hostServer.shutdownGameserver(this.gameServerInfo.internalName);
     }
 }
 
@@ -306,7 +390,7 @@ export class RconGameServer extends GameServer {
 
     override async stop() {
         await this.rconClient.disconnect();
-        return this.hostServer.shutdownGameserver(this.gameServerInfo);
+        return this.hostServer.shutdownGameserver(this.gameServerInfo.internalName);
     }
 
     override async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {

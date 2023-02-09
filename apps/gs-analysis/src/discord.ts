@@ -1,73 +1,146 @@
 import { Application } from "./application";
-import { ActivityType, Client, GatewayIntentBits, Routes, REST, ChatInputCommandInteraction, Collection, Events, SlashCommandBuilder, ApplicationCommandOptionType } from "discord.js";
+import {
+    ActivityType,
+    Client, GatewayIntentBits,
+    Routes, REST,
+    ChatInputCommandInteraction,
+    Collection,
+    Events,
+    SlashCommandBuilder,
+    ChannelType,
+    EmbedBuilder,
+} from "discord.js";
 import { Config } from "./config";
+import { StatusInfo } from "gs-analysis-interfaces";
 
 interface Command {
     data: SlashCommandBuilder
     execute: (interaction: ChatInputCommandInteraction, app: Application) => Promise<void>
 }
 
-const commands: Command[] = [{
-    data: new SlashCommandBuilder()
-        .setName("ping")
-        .setDescription("Replies with Pong!"),
-    execute: async (interaction, _) => {
-        await interaction.reply("Pong!");
-    }
-}, {
-    data: new SlashCommandBuilder()
-        .setName("echo")
-        .setDescription("Echoes your message back!")
-        .addStringOption(option => option
-            .setName("input")
-            .setDescription("The input that is echoed back!")
-            .setRequired(true)
-        ).addBooleanOption(option => option
-            .setName("ephemeral")
-            .setDescription("Message is ephemeral")
-            .setRequired(true)) as SlashCommandBuilder,
-    execute: async (interaction, _) => {
-        const input = interaction.options.get("input");
-        const ephemeral = interaction.options.get("ephemeral");
-        await interaction.reply({ content: input!.value as string, ephemeral: ephemeral!.value as boolean });
-    }
-}, {
-    data: new SlashCommandBuilder()
-        .setName("stop")
-        .setDescription("Stop the server with the given name!"),
-    execute: async (interaction, app) => {
+const createCommands = (config: Config): Command[] => {
+    return [{
+        data: new SlashCommandBuilder()
+            .setName("ping")
+            .setDescription("Replies with Pong!"),
+        execute: async (interaction, _) => {
+            await interaction.reply("Pong!");
+        }
+    }, {
+        data: new SlashCommandBuilder()
+            .setName("echo")
+            .setDescription("Echoes your message back!")
+            .addStringOption(option => option
+                .setName("input")
+                .setDescription("The input that is echoed back!")
+                .setRequired(true)
+            ).addBooleanOption(option => option
+                .setName("ephemeral")
+                .setDescription("Message is ephemeral")
+                .setRequired(true)) as SlashCommandBuilder,
+        execute: async (interaction, _) => {
+            const input = interaction.options.get("input");
+            const ephemeral = interaction.options.get("ephemeral");
+            await interaction.reply({ content: input!.value as string, ephemeral: ephemeral!.value as boolean });
+        }
+    }, {
+        data: new SlashCommandBuilder()
+            .setName("echo2")
+            .setDescription("Echoes your message back!"),
+        execute: async (interaction, _) => {
+            await interaction.reply({ fetchReply: true, content: "What you want to echoed?", ephemeral: true });
+            const message = await interaction.fetchReply();
+            await interaction.followUp({ content: message.content, ephemeral: true });
+        }
+    }, {
+        data: new SlashCommandBuilder()
+            .setName("server")
+            .setDescription("List or manage servers")
+            .addSubcommandGroup(group => group
+                .setName("manage")
+                .setDescription("Manage servers")
+                .addSubcommand(subcommand => subcommand
+                    .setName("start")
+                    .setDescription("Start server")
+                    .addStringOption(option => option
+                        .setName("servername")
+                        .setDescription("Name of the server to start")
+                        .setChoices(...config.servers.map(server => ({ name: server.name, value: server.name })))
+                        .setRequired(true)))
+                .addSubcommand(subcommand => subcommand
+                    .setName("stop")
+                    .setDescription("Stop server")
+                    .addStringOption(option => option
+                        .setName("servername")
+                        .setDescription("Name of the server to stop")
+                        .setChoices(...config.servers.map(server => ({ name: server.name, value: server.name })))
+                        .setRequired(true)))
+                .addSubcommand(subcommand => subcommand
+                    .setName("stop-if-needed")
+                    .setDescription("Stop all or given server(s) if needed!")
+                    .addStringOption(option => option
+                        .setName("servername")
+                        .setDescription("Name of the server to start")
+                        .setChoices(...config.servers.map(server => ({ name: server.name, value: server.name })))
+                        .setRequired(false))))
+            .addSubcommandGroup(group => group
+                .setName("info")
+                .setDescription("Get Server info")
+                .addSubcommand(subcommand => subcommand
+                    .setName("list")
+                    .setDescription("List Server Info")
+                    .addStringOption(option => option
+                        .setName("servername")
+                        .setDescription("Name of the server to start")
+                        .setChoices(...config.servers.map(server => ({ name: server.name, value: server.name })))
+                        .setRequired(false)))) as SlashCommandBuilder,
+        execute: async (interaction, app) => {
+            const group = interaction.options.getSubcommandGroup(true);
+            const subcommand = interaction.options.getSubcommand(true);
+            const serverName = interaction.options.getString("servername");
+            console.log(group, subcommand, serverName);
+            await interaction.deferReply({ ephemeral: true });
+            if (group === "manage") {
+                if (subcommand === "stop-if-needed") {
+                    await app.stopServersIfNeeded(serverName, 0);
+                    await interaction.editReply(serverName ? `Executed stop if needed for Server ${serverName}!` : "Executed stop if needed!");
+                } else if (subcommand === "stop") {
+                    await app.stopServer(serverName!);
+                    await interaction.editReply(`${serverName!} is stopped now!`);
+                } else if (subcommand === "start") {
+                    await app.startServer(serverName!);
+                    await interaction.editReply(`${serverName!} is started now!`);
+                }
+            } else if (group === "info") {
+                if (subcommand === "list") {
+                    const info = await app.getServerStatusInfo(false, serverName);
+                    const embed = produceReplyFromServerInfo(info);
+                    await interaction.editReply({ embeds: [embed] });
+                }
+            }
+        }
+    }]
+}
 
-    }
-}, {
-    data: new SlashCommandBuilder()
-        .setName("stop-if-needed")
-        .setDescription("Stop all or given server(s) if needed!")
-        .addStringOption(option => option
-            .setName("servername")
-            .setDescription("Servername")
-            .setRequired(false)) as SlashCommandBuilder,
-    execute: async (interaction, app) => {
-        const input = interaction.options.get("servername");
-        await interaction.deferReply();
-        const serverName = input ? input.value as string : null
-        await app.stopServersIfNeeded(serverName, 0);
-        await interaction.editReply(serverName ? `Executed stop if needed for Server ${serverName}!` : "Executed stop if needed!");
-    }
-}];
+const produceReplyFromServerInfo = (info: Record<string, StatusInfo>) => {
+    const fields = Object.entries(info).map(([name, info]) => ({ name, value: `${name} is my name` }));
 
-const commandMap = new Collection<string, Command>();
-commands.forEach((command) => {
-    commandMap.set(command.data.name, command);
-});
+
+    return new EmbedBuilder()
+        .setTitle("Server Status Info!")
+        .addFields(fields)
+}
 
 export const deployCommands = async (config: Config) => {
     const { botToken, applicationId, guildId } = config.discord;
-
+    const commands = createCommands(config);
     const rest = new REST({ version: "10" }).setToken(botToken);
+
+    const body = commands.map(c => c.data.toJSON());
 
     try {
         console.log('Started refreshing application (/) commands.');
-        await rest.put(Routes.applicationGuildCommands(applicationId, guildId), { body: commands.map(c => c.data) });
+        await rest.put(Routes.applicationGuildCommands(applicationId, guildId), { body });
         console.log('Successfully reloaded application (/) commands.');
     } catch (err) {
         console.error(err);
@@ -76,6 +149,12 @@ export const deployCommands = async (config: Config) => {
 
 export const createDiscordBot = (app: Application) => {
     const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages] });
+
+    const commands = createCommands(app.config);
+    const commandMap = new Collection<string, Command>();
+    commands.forEach((command) => {
+        commandMap.set(command.data.name, command);
+    });
 
     client.on("ready", () => {
         console.log(`Discord Bot logged in as ${client.user!.tag}! I'm on ${client.guilds.cache.size} guild(s)`);
@@ -100,6 +179,11 @@ export const createDiscordBot = (app: Application) => {
             }
         }
     });
+
+    client.on(Events.MessageCreate, message => {
+        if (message.channel.type != ChannelType.DM) return;
+
+    })
 
     return client;
 }

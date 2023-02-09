@@ -11,7 +11,8 @@ export const hostServerInfoValidator = serverInfoValidator
     .omit({ type: true })
     .extend({
         type: z.literal("hw"),
-        ipAdress: z.string().min(7).max(15),
+        ipAdress: z.string().regex(/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/),
+        mac: z.string().regex(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/).optional(),
         username: z.string(),
         password: z.string(),
         dockerInstalled: z.boolean().default(false),

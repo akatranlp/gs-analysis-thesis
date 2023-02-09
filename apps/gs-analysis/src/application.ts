@@ -111,4 +111,22 @@ export class Application {
     else throw new Error("Server not configured!");
     return { [serverName]: await server.stopIfNeeded(null, timeout === 0 ? 0 : timeout || this.config.timeout) };
   }
+
+  async startServer(serverName: string) {
+    let server
+    if (serverName in this.gsServers) server = this.gsServers[serverName];
+    else if (serverName in this.hwServers) server = this.hwServers[serverName];
+    else if (serverName in this.rootServers) server = this.rootServers[serverName];
+    else throw new Error("Server not configured!");
+    return server.start();
+  }
+
+  async stopServer(serverName: string) {
+    let server
+    if (serverName in this.gsServers) server = this.gsServers[serverName];
+    else if (serverName in this.hwServers) server = this.hwServers[serverName];
+    else if (serverName in this.rootServers) server = this.rootServers[serverName];
+    else throw new Error("Server not configured!");
+    return server.stop();
+  }
 }
