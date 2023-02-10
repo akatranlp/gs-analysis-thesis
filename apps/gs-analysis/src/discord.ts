@@ -9,6 +9,7 @@ import {
     SlashCommandBuilder,
     ChannelType,
     EmbedBuilder,
+    SlashCommandSubcommandBuilder,
 } from "discord.js";
 import { Config } from "./config";
 import { StatusInfo } from "gs-analysis-interfaces";
@@ -39,9 +40,9 @@ const createCommands = (config: Config): Command[] => {
                 .setDescription("Message is ephemeral")
                 .setRequired(true)) as SlashCommandBuilder,
         execute: async (interaction, _) => {
-            const input = interaction.options.get("input");
-            const ephemeral = interaction.options.get("ephemeral");
-            await interaction.reply({ content: input!.value as string, ephemeral: ephemeral!.value as boolean });
+            const input = interaction.options.getString("input", true);
+            const ephemeral = interaction.options.getBoolean("ephemeral", true);
+            await interaction.reply({ content: input, ephemeral });
         }
     }, {
         data: new SlashCommandBuilder()
@@ -108,7 +109,7 @@ const createCommands = (config: Config): Command[] => {
                     await app.stopServer(serverName!);
                     await interaction.editReply(`${serverName!} is stopped now!`);
                 } else if (subcommand === "start") {
-                    await app.startServer(serverName!);
+                    console.log("server should starting", await app.startServer(serverName!));
                     await interaction.editReply(`${serverName!} is started now!`);
                 }
             } else if (group === "info") {
@@ -117,6 +118,45 @@ const createCommands = (config: Config): Command[] => {
                     const embed = produceReplyFromServerInfo(info);
                     await interaction.editReply({ embeds: [embed] });
                 }
+            }
+        }
+    }, {
+        data: new SlashCommandBuilder()
+            .setName("config")
+            .setDescription("list or update config")
+            .addSubcommand(subcommand => subcommand
+                .setName("list")
+                .setDescription("List the current config"))
+            .addSubcommand(subcommand => subcommand
+                .setName("update")
+                .setDescription("update the current config")
+                .addBooleanOption(option => option
+                    .setName("shutdown-if-needed")
+                    .setDescription("Update if the Application should shutdown the servers if needed")
+                    .setRequired(false))
+                .addNumberOption(option => option
+                    .setName("interval")
+                    .setDescription("The interval in which the Application checks the server")
+                    .setRequired(false))
+                .addIntegerOption(option => option
+                    .setName("timeout")
+                    .setDescription("The timeout in which a server is considered inactive")
+                    .setMinValue(5)
+                    .setMaxValue(60)
+                    .setRequired(false))
+            ) as SlashCommandBuilder,
+        execute: async (interaction, app) => {
+            const subcommand = interaction.options.getSubcommand(true);
+            if (subcommand === "list") {
+                await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Config")], ephemeral: true })
+            } else if (subcommand === "update") {
+                const shutdownIfNeeded = interaction.options.getBoolean("shutdown-if-needed");
+                const interval = interaction.options.getNumber("interval");
+                const timeout = interaction.options.getInteger("timeout");
+                if (shutdownIfNeeded != null) app.config.stopIfNeeded = shutdownIfNeeded;
+                if (timeout != null) app.config.timeout = timeout;
+                if (interval != null && interval >= 0.1 && interval < 5) app.config.interval = interval;
+                await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Config")], ephemeral: true });
             }
         }
     }]
@@ -183,7 +223,15 @@ export const createDiscordBot = (app: Application) => {
     client.on(Events.MessageCreate, message => {
         if (message.channel.type != ChannelType.DM) return;
 
-    })
+    });
+
+    client.on("stop-if-needed", async () => {
+        const channel = client.channels.cache.get(app.config.discord.channelId);
+        if (!channel || channel.type != ChannelType.GuildText) return;
+        await channel.send({ content: "Stop-if-needed" });
+    });
+
+    client.emit("stop-if-needed");
 
     return client;
 }

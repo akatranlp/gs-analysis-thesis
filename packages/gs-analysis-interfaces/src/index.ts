@@ -1,24 +1,32 @@
-import {
-  serverInfoValidator,
-  ServerInfo,
-  gameServerInfoValidator,
-  GameServerInfo,
-  rconGameServerInfoValidator,
-  RconGameServerInfo,
-  hostServerInfoValidator,
-  HostServerInfo,
-} from "./serverInfo";
+import { serverInfoValidator, Server, ServerInfo, StatusInfo, } from "./server/interfaces";
 
-import { GameServer, HostServer, RconGameServer, StatusInfo } from "./server";
+import { HostServer, isHostServer, hostServerInfoValidator, HostServerInfo } from "./server/hostServer/hostServer";
+import { HardwareHostServer, isHardwareHostServer, hardwareHostServerInfoValidator, HardwareHostServerInfo } from "./server/hostServer/hardwareHostServer";
+import { ProxmoxHostServer, isProxmoxHostServer, proxmoxHostServerInfoValidator, ProxmoxHostServerInfo } from "./server/hostServer/proxmoxHostServer";
+
+import { VMServer, isVMServer, vmServerInfoValidator, VMServerInfo } from "./server/vmServer/index";
+
+import { GameServer, isGameServer, gameServerInfoValidator, GameServerInfo } from "./server/gameServer/gameServer";
+import { CommonGameServer, isCommonGameServer, commonGameServerInfoValidator, CommonGameServerInfo } from "./server/gameServer/commonGameServer";
+import { RconGameServer, isRconGameServer, rconGameServerInfoValidator, RconGameServerInfo } from "./server/gameServer/rconGameServer";
 
 export {
-  rconGameServerInfoValidator,
-  gameServerInfoValidator,
   serverInfoValidator,
-  hostServerInfoValidator,
-  GameServer,
-  HostServer,
-  RconGameServer
-};
 
-export type { RconGameServerInfo, GameServerInfo, ServerInfo, HostServerInfo, StatusInfo };
+  HostServer, isHostServer, hostServerInfoValidator,
+  HardwareHostServer, isHardwareHostServer, hardwareHostServerInfoValidator,
+  ProxmoxHostServer, isProxmoxHostServer, proxmoxHostServerInfoValidator,
+
+  VMServer, isVMServer, vmServerInfoValidator,
+
+  GameServer, isGameServer, gameServerInfoValidator,
+  CommonGameServer, isCommonGameServer, commonGameServerInfoValidator,
+  RconGameServer, isRconGameServer, rconGameServerInfoValidator,
+}
+
+export type {
+  Server, ServerInfo, StatusInfo,
+  HostServerInfo, HardwareHostServerInfo, ProxmoxHostServerInfo,
+  VMServerInfo,
+  GameServerInfo, RconGameServerInfo, CommonGameServerInfo,
+}

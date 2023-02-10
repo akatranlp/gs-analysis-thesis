@@ -241,6 +241,8 @@ export class OldRconClient {
           resolve();
         });
         this.socket!.end();
+      } else {
+        resolve();
       }
     })
   }

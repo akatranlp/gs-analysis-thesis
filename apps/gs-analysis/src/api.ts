@@ -68,29 +68,28 @@ const rconCommandRouter = (fastify: FastifyInstance, app: Application) => {
 
 const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
     const inputSchema = z.object({ servername: z.string() });
-    const bodySchema = z.object({ state: z.enum(["start", "stop", "stopin"]) });
+    const bodySchema = z.object({ state: z.enum(["stopin"]) });
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema>, Body: z.infer<typeof bodySchema> }>
 
     fastify.put("/api/servers", async (req: CustomRequest, res) => (
         wrapZodError(async () => {
             const body = await bodySchema.parseAsync(req.body);
-            if (body.state === "start") {
-                throw new Error("not implemented");
-            } else if (body.state === "stop") {
-                throw new Error("not implemented");
-            } else if (body.state === "stopin") {
+            if (body.state === "stopin") {
                 return await app.stopServersIfNeeded(null, 0);
             }
         })
     ));
 
-    fastify.put("/api/servers/:servername", async (req: CustomRequest, res) => (
+    const bodySchemaServers = z.object({ state: z.enum(["start", "stop", "stopin"]) });
+    type CustomRequestServers = FastifyRequest<{ Params: z.infer<typeof inputSchema>, Body: z.infer<typeof bodySchemaServers> }>
+
+    fastify.put("/api/servers/:servername", async (req: CustomRequestServers, res) => (
         wrapZodError(async () => {
-            const body = await bodySchema.parseAsync(req.body);
+            const body = await bodySchemaServers.parseAsync(req.body);
             if (body.state === "start") {
-                throw new Error("not implemented");
+                return await app.startServer(req.params.servername);
             } else if (body.state === "stop") {
-                throw new Error("not implemented");
+                return await app.stopServer(req.params.servername);
             } else if (body.state === "stopin") {
                 return await app.stopServersIfNeeded(req.params.servername, 0);
             }
