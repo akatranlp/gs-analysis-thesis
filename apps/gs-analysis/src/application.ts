@@ -84,9 +84,9 @@ export class Application {
 
   private async loop() {
     if (this.config.stopIfNeeded) {
-      this.statusGraph = await this.stopServersIfNeeded(null, null);
+      await this.stopServersIfNeeded(null, null);
     } else {
-      this.statusGraph = await this.getServerStatusInfo(true, null);
+      await this.getServerStatusInfo(true, null);
     }
     this.lastStatusUpdate = new Date();
 
@@ -104,7 +104,7 @@ export class Application {
 
   async getServerStatusInfo(updateFromApplication: boolean, serverName: string | null) {
     if (serverName == null) {
-      if (!updateFromApplication && this.statusGraph != null) {
+      if (!updateFromApplication && this.continueLoop && this.statusGraph != null) {
         return this.statusGraph;
       }
 
@@ -112,6 +112,7 @@ export class Application {
       for (const [name, rootServer] of Object.entries(this.rootServers)) {
         map[name] = await rootServer.statusInfo(this.config.timeout);
       }
+      this.statusGraph = map;
       return map;
     }
 
@@ -138,6 +139,7 @@ export class Application {
         map[name] = info;
       }
       if (this.discordBot) this.discordBot.emit("stop-if-needed", shutdownedServers);
+      this.statusGraph = map;
       return map;
     }
 

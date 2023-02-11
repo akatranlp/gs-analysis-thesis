@@ -101,12 +101,16 @@ const createCommands = (config: Config): Command[] => {
             const group = interaction.options.getSubcommandGroup(true);
             const subcommand = interaction.options.getSubcommand(true);
             const serverName = interaction.options.getString("servername");
-            console.log(group, subcommand, serverName);
             await interaction.deferReply({ ephemeral: true });
             if (group === "manage") {
                 if (subcommand === "stop-if-needed") {
                     const info = await app.stopServersIfNeeded(serverName, 0);
-                    await interaction.editReply(serverName ? `Executed stop if needed for Server ${serverName}!` : "Executed stop if needed!");
+                    const shutdownedServers = Object.values(info).flatMap(e => e.shutdownedServers);
+                    if (shutdownedServers.length > 1) {
+                        await interaction.editReply("Executed stop if needed!");
+                    }
+                    const embed = createShutdownedServersEmbed(shutdownedServers);
+                    await interaction.editReply({ embeds: [embed] });
                 } else if (subcommand === "stop") {
                     await app.stopServer(serverName!);
                     await interaction.editReply(`${serverName!} is stopped now!`);
@@ -165,12 +169,70 @@ const createCommands = (config: Config): Command[] => {
 }
 
 const produceReplyFromServerInfo = (info: Record<string, StatusInfo>) => {
-    const fields = Object.entries(info).map(([name, info]) => ({ name, value: `${name} is my name` }));
+    const createFields = (info: StatusInfo) => {
+        if (info.childrenInfo == null || info.childrenInfo.length === 0) {
+            return [{
+                name: info.name,
+                value: `${info.status}
+                ${info.status === "running" ? info.isInactive ? "inactive" : "active" : ""}`.trim()
+            }]
+        }
+        if (info.childrenInfo.every(entry => entry.type === "gs")) {
+            return [
+                {
+                    name: info.name,
+                    value: `${info.status}
+                    ${info.status === "running" ? info.isInactive ? "inactive" : "active" : ""}`.trim()
+                },
+                ...(info.childrenInfo.map(entry => ({
+                    name: entry.name,
+                    value: `${entry.status}
+                    players: ${entry.playerCount}
+                    ${entry.rcon === true ? "rcon" : ""}
+                    ${entry.status === "running" ? entry.isInactive ? "inactive" : "active" : ""}`.trim(),
+                    inline: true
+                })))
+            ]
+        }
+        if (info.childrenInfo.every(entry => entry.type === "vm" && entry.childrenInfo != null && entry.childrenInfo.length !== 0 && entry.childrenInfo.every(e => e.type === "gs"))) {
+            return [
+                {
+                    name: info.name,
+                    value: `${info.status}
+                    ${info.status === "running" ? info.isInactive ? "inactive" : "active" : ""}`.trim()
+                },
+                ...(info.childrenInfo.map(entry => ({
+                    name: entry.name,
+                    value: `${info.status}
+                    ${entry.status === "running" ? entry.isInactive ? "inactive" : "active" : ""}`.trim()
+                }))),
+                ...(info.childrenInfo.flatMap(entry => entry.childrenInfo!.map(e => ({
+                    name: e.name,
+                    value: `${e.status}
+                    players: ${e.playerCount}
+                    ${e.rcon === true ? "rcon" : ""}
+                    ${e.status === "running" ? e.isInactive ? "inactive" : "active" : ""}`.trim(),
+                    inline: true
+                }))))
+            ]
+        }
+    }
 
-
-    return new EmbedBuilder()
+    const embedBuilder = new EmbedBuilder()
+        .setColor(0x0099FF)
         .setTitle("Server Status Info!")
-        .addFields(fields)
+        .setTimestamp()
+
+    Object.values(info).map(e => createFields(e)).filter(e => e != undefined).map((e, index, array) => index === array.length - 1 ? e! : [...e!, { name: '\u200B', value: '\u200B' }]).forEach(e => embedBuilder.addFields(e))
+    return embedBuilder;
+}
+
+const createShutdownedServersEmbed = (shutdownedServers: string[]) => {
+    return new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle("Shutdowned servers because of inactivity")
+        .addFields({ name: "Servers", value: shutdownedServers.length > 0 ? shutdownedServers.join(", ") : "No servers were shutdowned" })
+        .setTimestamp()
 }
 
 export const deployCommands = async (config: Config) => {
@@ -198,9 +260,12 @@ export const createDiscordBot = (app: Application) => {
         commandMap.set(command.data.name, command);
     });
 
-    client.on("ready", () => {
+    client.on("ready", async () => {
         console.log(`Discord Bot logged in as ${client.user!.tag}! I'm on ${client.guilds.cache.size} guild(s)`);
         client.user!.setActivity({ name: "your messages", type: ActivityType.Watching });
+
+        const channel = client.channels.cache.get(app.config.discord.channelId);
+        if (!channel || channel.type != ChannelType.GuildText) return;
     });
 
     client.on(Events.InteractionCreate, async (interaction) => {
@@ -230,8 +295,11 @@ export const createDiscordBot = (app: Application) => {
     client.on("stop-if-needed", async (shutdownedServers: string[]) => {
         const channel = client.channels.cache.get(app.config.discord.channelId);
         if (!channel || channel.type != ChannelType.GuildText) return;
-        console.log(shutdownedServers);
-        await channel.send({ content: "Stop-if-needed" });
+
+        if (shutdownedServers.length > 0) {
+            const embed = createShutdownedServersEmbed(shutdownedServers);
+            await channel.send({ embeds: [embed] });
+        }
     });
 
     return client;
