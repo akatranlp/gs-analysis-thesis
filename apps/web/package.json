@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prod-build": "del /q /s ..\\gs-analysis\\dist\\public\\* && xcopy /q /s /Y dist ..\\gs-analysis\\dist\\public",
+    "prod-build": "del /q /s ..\\gs-analysis\\dist\\public\\assets\\*.js && del /q /s ..\\gs-analysis\\dist\\public\\assets\\*.css && del /q ..\\gs-analysis\\dist\\public\\index.html  && xcopy /q /s /Y dist ..\\gs-analysis\\dist\\public",
     "preview": "vite preview"
   },
   "dependencies": {

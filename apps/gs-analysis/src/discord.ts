@@ -112,11 +112,17 @@ const createCommands = (config: Config): Command[] => {
                     const embed = createShutdownedServersEmbed(shutdownedServers);
                     await interaction.editReply({ embeds: [embed] });
                 } else if (subcommand === "stop") {
-                    await app.stopServer(serverName!);
-                    await interaction.editReply(`${serverName!} is stopped now!`);
+                    const success = await app.stopServer(serverName!);
+                    if (success)
+                        await interaction.editReply(`${serverName!} is stopped now!`);
+                    else
+                        await interaction.editReply(`${serverName!} could not be stopped!`);
                 } else if (subcommand === "start") {
-                    console.log("server should starting", await app.startServer(serverName!));
-                    await interaction.editReply(`${serverName!} is started now!`);
+                    const success = await app.startServer(serverName!);
+                    if (success)
+                        await interaction.editReply(`${serverName!} is started now!`);
+                    else
+                        await interaction.editReply(`${serverName!} could not be started!`);
                 }
             } else if (group === "info") {
                 if (subcommand === "list") {
@@ -260,12 +266,13 @@ export const createDiscordBot = (app: Application) => {
         commandMap.set(command.data.name, command);
     });
 
-    client.on("ready", async () => {
+    client.on(Events.ClientReady, async () => {
         console.log(`Discord Bot logged in as ${client.user!.tag}! I'm on ${client.guilds.cache.size} guild(s)`);
         client.user!.setActivity({ name: "your messages", type: ActivityType.Watching });
 
         const channel = client.channels.cache.get(app.config.discord.channelId);
         if (!channel || channel.type != ChannelType.GuildText) return;
+        await channel.send("I'm connected to this server!");
     });
 
     client.on(Events.InteractionCreate, async (interaction) => {

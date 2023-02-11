@@ -1,3 +1,3 @@
-export const createLogger = (name: string) => (str: any) => {
-  console.log(`${name}: `, str);
+export const createLogger = (name: string) => (...args: any) => {
+  console.log(`${name}: `, ...args);
 }

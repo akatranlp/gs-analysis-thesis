@@ -22,8 +22,15 @@ import {
 import { StatusInfo } from "gs-analysis-types";
 import { Config } from "./config";
 import { Client } from "discord.js";
+import { InfluxDB, Point } from "@influxdata/influxdb-client";
+import { createLogger } from "logger";
+
+const influxLog = createLogger("InfluxDB");
+const appLog = createLogger("App");
+
 
 export class Application {
+  private influxClient
   private intervalId?: NodeJS.Timer;
   private continueLoop = true;
   rootServers: Record<string, HostServer> = {};
@@ -34,6 +41,8 @@ export class Application {
   private discordBot: Client | null = null;
 
   constructor(public config: Config) {
+    this.influxClient = new InfluxDB({ url: config.influx.url, token: config.influx.token });
+
     const rootServers = this.config.servers.filter(entry => entry.type === "hw").map(entry => hostServerInfoValidator.parse(entry));
     const vmServers = this.config.servers.filter(entry => entry.type === "vm").map(entry => vmServerInfoValidator.parse(entry));
     const gsServers = this.config.servers.filter(entry => entry.type === "gs").map(entry => gameServerInfoValidator.parse(entry));
@@ -84,10 +93,13 @@ export class Application {
 
   private async loop() {
     if (this.config.stopIfNeeded) {
+      appLog("Run loop stop servers if needed");
       await this.stopServersIfNeeded(null, null);
     } else {
+      appLog("Run loop getting statusinfo");
       await this.getServerStatusInfo(true, null);
     }
+    await this.sendDataToInflux();
     this.lastStatusUpdate = new Date();
 
     if (this.continueLoop) {
@@ -100,6 +112,86 @@ export class Application {
   async stop() {
     this.continueLoop = false;
     if (this.intervalId) clearInterval(this.intervalId);
+  }
+
+  private async sendDataToInflux() {
+    if (!this.statusGraph) return;
+    const writeApi = this.influxClient.getWriteApi(this.config.influx.org, this.config.influx.bucket);
+    const currentDate = new Date();
+
+    influxLog("Start sending data!");
+
+    let isOnlineCounter = 0;
+    for (const rootInfo of Object.values(this.statusGraph)) {
+      isOnlineCounter++;
+
+      const inactivePoint = new Point("onlineInactiveStatus")
+        .tag("name", `${rootInfo.name}-Inactive`)
+        .floatField("value", rootInfo.isInactive ? isOnlineCounter : 0)
+        .timestamp(currentDate);
+
+      const onlinePoint = new Point("onlineInactiveStatus")
+        .tag("name", `${rootInfo.name}-Online`)
+        .floatField("value", (rootInfo.status === "running" || rootInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+        .timestamp(currentDate);
+
+      writeApi.writePoint(inactivePoint);
+      writeApi.writePoint(onlinePoint);
+
+      if (!rootInfo.childrenInfo) continue;
+      for (const vmInfo of rootInfo.childrenInfo) {
+        isOnlineCounter++;
+
+        const inactivePoint = new Point("onlineInactiveStatus")
+          .tag("name", `${vmInfo.name}-Inactive`)
+          .floatField("value", vmInfo.isInactive ? isOnlineCounter : 0)
+          .timestamp(currentDate);
+
+        const onlinePoint = new Point("onlineInactiveStatus")
+          .tag("name", `${vmInfo.name}-Online`)
+          .floatField("value", (vmInfo.status === "running" || vmInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+          .timestamp(currentDate);
+
+        writeApi.writePoint(inactivePoint);
+        writeApi.writePoint(onlinePoint);
+
+        if (vmInfo.type === "gs") {
+          const point = new Point("playerCount")
+            .tag("name", vmInfo.name)
+            .uintField("playerCount", vmInfo.playerCount!)
+            .timestamp(currentDate);
+
+          writeApi.writePoint(point);
+        }
+
+        if (!vmInfo.childrenInfo) continue;
+        for (const gsInfo of vmInfo.childrenInfo) {
+          isOnlineCounter++;
+
+          const inactivePoint = new Point("onlineInactiveStatus")
+            .tag("name", `${gsInfo.name}-Inactive`)
+            .floatField("value", gsInfo.isInactive ? isOnlineCounter : 0)
+            .timestamp(currentDate);
+
+          const onlinePoint = new Point("onlineInactiveStatus")
+            .tag("name", `${gsInfo.name}-Online`)
+            .floatField("value", (gsInfo.status === "running" || gsInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+            .timestamp(currentDate);
+
+          writeApi.writePoint(inactivePoint);
+          writeApi.writePoint(onlinePoint);
+
+          const point = new Point("playerCount")
+            .tag("name", gsInfo.name)
+            .uintField("playerCount", gsInfo.playerCount!)
+            .timestamp(currentDate);
+
+          writeApi.writePoint(point);
+        }
+      }
+    }
+
+    await writeApi.close();
   }
 
   async getServerStatusInfo(updateFromApplication: boolean, serverName: string | null) {

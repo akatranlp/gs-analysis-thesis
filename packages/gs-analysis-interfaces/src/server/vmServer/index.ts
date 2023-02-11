@@ -45,12 +45,10 @@ export class VMServer implements Server {
         }
         if (hostStatus != "running") return "stopped";
         try {
-            console.log("Before connecting VM!", this.info.name);
             const socket = new PromiseSocket();
             socket.setTimeout(25);
             await socket.connect(22, this.info.ipAdress);
             await socket.end();
-            console.log("After connecting VM!", this.info.name);
             return "running";
         } catch (err) {
             return "stopped";
@@ -151,7 +149,7 @@ export class VMServer implements Server {
         }
 
         return {
-            isInactive,
+            isInactive: status !== "running" ? false : isInactive,
             status,
             name: this.info.name,
             type: this.info.type,

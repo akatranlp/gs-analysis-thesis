@@ -9,6 +9,12 @@ export const configParser = z.object({
         guildId: z.string(),
         channelId: z.string()
     }),
+    influx: z.object({
+        url: z.string().url(),
+        token: z.string(),
+        org: z.string(),
+        bucket: z.string(),
+    }),
     stopIfNeeded: z.boolean(),
     apiPort: z.number().min(0).max(65535),
     timeout: z.number().min(5).max(60),
