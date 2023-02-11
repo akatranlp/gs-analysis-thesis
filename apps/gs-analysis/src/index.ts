@@ -12,7 +12,6 @@ const main = async () => {
         console.error("false number of args!");
         process.exit(1);
     }
-
     if (process.argv.length < 3) {
         try {
             console.log("Starting to launch entire Application!");
@@ -26,6 +25,8 @@ const main = async () => {
             const discordClient = createDiscordBot(app);
             await discordClient.login(config.discord.botToken);
             console.log("Application is now online!");
+
+            app.installDiscordBot(discordClient);
             return;
         } catch (err) {
             console.log(err);
@@ -34,15 +35,13 @@ const main = async () => {
     }
 
     if (process.argv[2] === "deployCommands") {
-        return deployCommands(config);
-    }
-    if (process.argv[2] === "api") {
+        await deployCommands(config);
+    } else if (process.argv[2] === "api") {
         try {
             console.log("Starting to launch only the API!");
             const fastify = createFastifyApi(app);
             await fastify.listen({ port: config.apiPort, host: "0.0.0.0" });
             console.log(`Api is started on Port ${config.apiPort}`);
-            return;
         } catch (err) {
             console.log(err);
             process.exit(1);
@@ -52,7 +51,8 @@ const main = async () => {
             console.log("Starting to launch only the Discord Bot!");
             const discordClient = createDiscordBot(app);
             await discordClient.login(config.discord.botToken);
-            return;
+
+            app.installDiscordBot(discordClient);
         } catch (err) {
             console.log(err);
             process.exit(1);
@@ -61,7 +61,6 @@ const main = async () => {
         console.log("Starting to launch only the Main Application!");
         await app.start();
         console.log("App is now running!");
-        return;
     } else {
         console.error("input is wrong");
         process.exit(1);

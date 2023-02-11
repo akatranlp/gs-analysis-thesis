@@ -1,4 +1,4 @@
-import { serverInfoValidator, Server, ServerInfo, StatusInfo, } from "./server/interfaces";
+import { serverInfoValidator, Server, ServerInfo, } from "./server/interfaces";
 
 import { HostServer, isHostServer, hostServerInfoValidator, HostServerInfo } from "./server/hostServer/hostServer";
 import { HardwareHostServer, isHardwareHostServer, hardwareHostServerInfoValidator, HardwareHostServerInfo } from "./server/hostServer/hardwareHostServer";
@@ -25,7 +25,7 @@ export {
 }
 
 export type {
-  Server, ServerInfo, StatusInfo,
+  Server, ServerInfo,
   HostServerInfo, HardwareHostServerInfo, ProxmoxHostServerInfo,
   VMServerInfo,
   GameServerInfo, RconGameServerInfo, CommonGameServerInfo,

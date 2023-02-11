@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
   baseURL: "/api/"
 })
 
-import { StatusInfo } from "gs-analysis-interfaces";
+import { StatusInfo } from "gs-analysis-types";
 interface ServerStatus {
   lastStatusUpdate: Date
   statusGraph: Record<string, StatusInfo>
@@ -27,7 +27,7 @@ const RenderStatusInfo = ({ info }: { info: StatusInfo }): JSX.Element => {
       <div>
         <div>Name: {info.name}</div>
         <div>isInactive: {info.isInactive ? "inactive" : "active"}</div>
-        <div>isOnline: {info.isOnline ? "online" : "offline"}</div>
+        <div>status: {info.status}</div>
         {info.playerCount != null && <div>PlayerCount: {info.playerCount}</div>}
         {info.maxPlayers != null && <div>MaxPlayerCount: {info.maxPlayers}</div>}
         {info.rcon != null && <div>Rcon: {info.rcon}</div>}

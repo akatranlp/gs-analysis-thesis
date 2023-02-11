@@ -8,11 +8,13 @@ import {
     Events,
     SlashCommandBuilder,
     ChannelType,
-    EmbedBuilder,
-    SlashCommandSubcommandBuilder,
+    EmbedBuilder
 } from "discord.js";
 import { Config } from "./config";
-import { StatusInfo } from "gs-analysis-interfaces";
+import { StatusInfo } from "gs-analysis-types";
+import { createLogger } from "logger";
+
+const log = createLogger("Discord-Bot");
 
 interface Command {
     data: SlashCommandBuilder
@@ -103,7 +105,7 @@ const createCommands = (config: Config): Command[] => {
             await interaction.deferReply({ ephemeral: true });
             if (group === "manage") {
                 if (subcommand === "stop-if-needed") {
-                    await app.stopServersIfNeeded(serverName, 0);
+                    const info = await app.stopServersIfNeeded(serverName, 0);
                     await interaction.editReply(serverName ? `Executed stop if needed for Server ${serverName}!` : "Executed stop if needed!");
                 } else if (subcommand === "stop") {
                     await app.stopServer(serverName!);
@@ -225,13 +227,12 @@ export const createDiscordBot = (app: Application) => {
 
     });
 
-    client.on("stop-if-needed", async () => {
+    client.on("stop-if-needed", async (shutdownedServers: string[]) => {
         const channel = client.channels.cache.get(app.config.discord.channelId);
         if (!channel || channel.type != ChannelType.GuildText) return;
+        console.log(shutdownedServers);
         await channel.send({ content: "Stop-if-needed" });
     });
-
-    client.emit("stop-if-needed");
 
     return client;
 }

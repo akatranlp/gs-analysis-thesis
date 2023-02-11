@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { StatusInfo } from "../interfaces";
+import { ServerStatus, StatusInfo } from "gs-analysis-types";
 import { Server, serverInfoValidator } from "../interfaces";
-import { HardwareHostServer } from "../hostServer/hardwareHostServer";
-import { VMServer } from "../vmServer/index";
+import { DockerHost } from "../dockerhost";
+import { delay } from "utils";
 
 export const gameServerInfoValidator = serverInfoValidator
     .omit({ type: true })
@@ -20,43 +20,52 @@ export const isGameServer = (server: Server): server is GameServer => {
 }
 
 export class GameServer implements Server {
+    givenServerStatus: "starting" | "stopping" | null = null;
     protected inactiveTime = -1;
-    constructor(public info: GameServerInfo, public hostServer: HardwareHostServer | VMServer) { }
+    constructor(public info: GameServerInfo, public hostServer: DockerHost) { }
 
-    async isOnline(hostIsOnline: boolean | null): Promise<boolean> {
-        return this.hostServer.checkGameServerStatus(hostIsOnline, this.info.internalName);
+    async getServerStatus(hostStatus: ServerStatus | null): Promise<ServerStatus> {
+        if (this.givenServerStatus) return this.givenServerStatus;
+        return this.hostServer.checkGameServerStatus(hostStatus, this.info.internalName);
     }
 
-    async stop(hostIsOnline: boolean | null): Promise<boolean> {
-        if (!await this.isOnline(hostIsOnline)) return true;
-        return this.hostServer.shutdownGameserver(hostIsOnline, this.info.internalName);
+    async stop(hostStatus: ServerStatus | null): Promise<boolean> {
+        const status = await this.getServerStatus(hostStatus);
+        if (status === "stopped" || status === "stopping") return true;
+        //// wait when starting
+        this.givenServerStatus = "stopping";
+        const success = await this.hostServer.shutdownGameserver(hostStatus, this.info.internalName);
+        this.givenServerStatus = null;
+        return success;
     }
 
-    async stopIfNeeded(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
-        const info = await this.statusInfo(hostIsOnline, timeout);
-        if (!info.isOnline || !info.isInactive) return info;
-        const success = await this.stop(true);
+    async stopIfNeeded(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
+        const info = await this.statusInfo(hostStatus, timeout);
+        if (info.status !== "running") return info;
+        if (!info.isInactive) return info;
+
+        const success = await this.stop("running");
         if (!success) return info;
         return {
             ...info,
             isInactive: false,
-            isOnline: false,
+            status: "stopped",
             shutdownedServers: [this.info.name]
         }
     }
 
-    async start(hostIsOnline: boolean | null): Promise<boolean> {
-        if (hostIsOnline == null) {
-            hostIsOnline = await this.hostServer.isOnline(null);
-        }
-        if (hostIsOnline === false) {
-            const success = await this.hostServer.start();
-            if (!success) return false;
-        }
-        return this.hostServer.startGameServer(true, this.info.internalName);
+    async start(): Promise<boolean> {
+        const status = await this.getServerStatus(null);
+        if (status === "running" || status === "starting") return true;
+        //// wait when stopping
+        this.givenServerStatus = "starting";
+        const success = await this.hostServer.startGameServer(this.info.internalName);
+        await delay(10_000);
+        this.givenServerStatus = null;
+        return success;
     }
 
-    async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
+    async statusInfo(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
         throw new Error("not implemented!")
     }
 

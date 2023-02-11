@@ -6,7 +6,6 @@ import {
   HostServer,
   GameServer,
   RconGameServer,
-  StatusInfo,
   VMServer,
   vmServerInfoValidator,
   hardwareHostServerInfoValidator,
@@ -19,7 +18,10 @@ import {
   isHardwareHostServer,
   isVMServer,
 } from "gs-analysis-interfaces";
+
+import { StatusInfo } from "gs-analysis-types";
 import { Config } from "./config";
+import { Client } from "discord.js";
 
 export class Application {
   private intervalId?: NodeJS.Timer;
@@ -29,6 +31,7 @@ export class Application {
   gsServers: Record<string, GameServer> = {};
   statusGraph: Record<string, StatusInfo> | null = null;
   lastStatusUpdate = new Date();
+  private discordBot: Client | null = null;
 
   constructor(public config: Config) {
     const rootServers = this.config.servers.filter(entry => entry.type === "hw").map(entry => hostServerInfoValidator.parse(entry));
@@ -58,16 +61,20 @@ export class Application {
       if (!(isHardwareHostServer(hostServer) || isVMServer(hostServer))) throw new Error("HostServer is not a Dockerhost");
       if (gameserverConfig.checkType === "common") {
         const config = commonGameServerInfoValidator.parse(gameserverConfig);
-        const server = new CommonGameServer(config, hostServer);
+        const server = new CommonGameServer(config, hostServer.dockerHost);
         this.gsServers[config.name] = server;
         hostServer.addChild(server);
       } else if (gameserverConfig.checkType === "rcon") {
         const config = rconGameServerInfoValidator.parse(gameserverConfig);
-        const server = new RconGameServer(config, hostServer);
+        const server = new RconGameServer(config, hostServer.dockerHost);
         this.gsServers[config.name] = server;
         hostServer.addChild(server);
       }
     }
+  }
+
+  installDiscordBot(discordBot: Client) {
+    this.discordBot = discordBot;
   }
 
   async start() {
@@ -124,9 +131,13 @@ export class Application {
     timeout = timeout === 0 ? 0 : timeout || this.config.timeout
     if (serverName == null) {
       const map: Record<string, StatusInfo> = {}
+      let shutdownedServers: string[] = []
       for (const [name, rootServer] of Object.entries(this.rootServers)) {
-        map[name] = await rootServer.stopIfNeeded(timeout);
+        const info = await rootServer.stopIfNeeded(timeout);
+        shutdownedServers = [...shutdownedServers, ...info.shutdownedServers]
+        map[name] = info;
       }
+      if (this.discordBot) this.discordBot.emit("stop-if-needed", shutdownedServers);
       return map;
     }
 
@@ -139,12 +150,13 @@ export class Application {
       info = await this.rootServers[serverName].stopIfNeeded(timeout);
     }
     else throw new Error("Server not configured!");
+    if (this.discordBot) this.discordBot.emit("stop-if-needed", info.shutdownedServers);
     return { [serverName]: info };
   }
 
   async startServer(serverName: string) {
     if (serverName in this.gsServers) {
-      return this.gsServers[serverName].start(null);
+      return this.gsServers[serverName].start();
     } else if (serverName in this.vmServers) {
       return this.vmServers[serverName].start();
     } else if (serverName in this.rootServers) {

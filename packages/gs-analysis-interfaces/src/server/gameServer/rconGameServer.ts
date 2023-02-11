@@ -1,10 +1,9 @@
-import { StatusInfo } from "../interfaces";
+import { ServerStatus, StatusInfo } from "gs-analysis-types";
 import { z } from "zod";
 import { GameServer, gameServerInfoValidator } from "./gameServer";
-import { HardwareHostServer } from "../hostServer/hardwareHostServer";
-import { VMServer } from "../vmServer";
 import { OldRconClient } from "rcon";
 import rconCommandsMap from "../../rconCommandsMap";
+import { DockerHost } from "../dockerhost";
 
 export const rconGameServerInfoValidator = gameServerInfoValidator
     .omit({ checkType: true })
@@ -21,9 +20,9 @@ export const isRconGameServer = (server: GameServer): server is RconGameServer =
 }
 
 export class RconGameServer extends GameServer {
-    private rconClient: OldRconClient
+    rconClient: OldRconClient
 
-    constructor(info: RconGameServerInfo, hostServer: HardwareHostServer | VMServer) {
+    constructor(info: RconGameServerInfo, hostServer: DockerHost) {
         super(info, hostServer);
         this.rconClient = new OldRconClient({
             host: hostServer.info.ipAdress,
@@ -32,17 +31,17 @@ export class RconGameServer extends GameServer {
         });
     }
 
-    override async stop(hostIsOnline: boolean | null) {
+    override async stop(hostStatus: ServerStatus | null) {
         await this.rconClient.disconnect();
-        return super.stop(hostIsOnline);
+        return super.stop(hostStatus);
     }
 
-    override async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
-        let isOnline = await this.isOnline(hostIsOnline);
+    override async statusInfo(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
+        const status = await this.getServerStatus(hostStatus);
 
         let playerCount = 0
         let isInactive
-        if (isOnline) {
+        if (status === "running") {
             playerCount = await this.getRconPlayerCount();
             isInactive = this.checkInactivity(playerCount, timeout);
         } else {
@@ -52,7 +51,7 @@ export class RconGameServer extends GameServer {
 
         return {
             isInactive,
-            isOnline,
+            status,
             name: this.info.name,
             type: this.info.type,
             playerCount: 0,
@@ -64,7 +63,8 @@ export class RconGameServer extends GameServer {
     }
 
     async sendCommand(command: string): Promise<string> {
-        if (!await this.isOnline(null)) throw new Error("host is not online!");
+        const status = await this.getServerStatus(null);
+        if (status !== "running") return "Server is not online at the moment!";
         if (!this.rconClient.isConnected()) await this.rconClient.connect();
         return this.rconClient.sendCommand(command);
     }
@@ -80,9 +80,9 @@ export class RconGameServer extends GameServer {
         const commands = rconCommandsMap[this.info.gsType];
         if (!commands) throw new Error("GameServer Type not implemented yet!");
         const response = await this.rconClient.sendCommand(commands.command);
+
         const playerCount = commands.outputConverter(response);
         if (Number.isNaN(playerCount)) throw new Error("Playercount is NaN!");
         return playerCount;
     }
-
 }

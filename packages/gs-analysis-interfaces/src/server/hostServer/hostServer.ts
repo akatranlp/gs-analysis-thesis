@@ -3,7 +3,8 @@ import PromiseSocket from "promise-socket";
 import { delay } from "utils";
 import { z } from "zod";
 import { GameServer } from "../gameServer/gameServer";
-import { Server, serverInfoValidator, StatusInfo } from "../interfaces";
+import { Server, serverInfoValidator } from "../interfaces";
+import { ServerStatus, StatusInfo } from "gs-analysis-types";
 import { VMServer } from "../vmServer/index";
 
 
@@ -26,6 +27,7 @@ export const isHostServer = (server: Server): server is HostServer => {
 }
 
 export class HostServer implements Server {
+    givenServerStatus: "starting" | "stopping" | null = null;
     private children: (GameServer | VMServer)[] = [];
 
     constructor(public info: HostServerInfo) { }
@@ -34,17 +36,18 @@ export class HostServer implements Server {
         this.children.push(child);
     }
 
-    async isOnline(): Promise<boolean> {
+    async getServerStatus(): Promise<ServerStatus> {
+        if (this.givenServerStatus) return this.givenServerStatus;
         try {
-            console.log("Before connecting!", this.info.name);
+            console.log("Before connecting VM!", this.info.name);
             const socket = new PromiseSocket();
             socket.setTimeout(25);
             await socket.connect(22, this.info.ipAdress);
             await socket.end();
-            console.log("After connecting!", this.info.name);
-            return true;
+            console.log("After connecting VM!", this.info.name);
+            return "running";
         } catch (err) {
-            return false;
+            return "stopped";
         }
     }
 
@@ -63,70 +66,91 @@ export class HostServer implements Server {
     }
 
     async start(): Promise<boolean> {
-        if (await this.isOnline()) return true;
+        const status = await this.getServerStatus();
+        if (status === "running" || status === "starting") return true;
+        /// wait stopping
+
+        this.givenServerStatus = "starting";
         await this.sendMagicPacket();
 
         await delay(60_000);
-        if (await this.isOnline())
-            return true
-        return false;
+        this.givenServerStatus = null;
+        return await this.getServerStatus() === "running"
     }
 
     async stop(): Promise<boolean> {
-        if (!await this.isOnline()) return true;
+        const status = await this.getServerStatus();
+        if (status === "stopped" || status === "stopping") return true;
+        /// wait starting
+
+        this.givenServerStatus = "stopping";
         for (const child of this.children) {
-            const success = await child.stop(true);
+            const success = await child.stop("running");
             if (!success) return false;
         }
         return true;
     }
 
     async stopIfNeeded(timeout: number): Promise<StatusInfo> {
-        const isOnline = await this.isOnline();
-        if (!isOnline) return await this.statusInfo(timeout);
-        let isInactive = true;
+        const status = await this.getServerStatus();
+        if (status !== "running") return this.statusInfo(timeout);
 
+        let isInactive = true;
         let shutdownedServers: string[] = []
 
+        const childrenInfo: StatusInfo[] = []
         for (const child of this.children) {
-            const info = await child.stopIfNeeded(isOnline, timeout);
-            shutdownedServers = [...shutdownedServers, ...info.shutdownedServers]
-            if (info.isOnline) isInactive = false;
+            const info = await child.stopIfNeeded(status, timeout);
+            shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
+            childrenInfo.push({ ...info, shutdownedServers: [] });
+            if (info.status === "running" && !info.isInactive) isInactive = false;
         }
 
-        const info = await this.statusInfo(timeout);
         if (isInactive) {
             const success = await this.stop();
             if (success) {
-                shutdownedServers.push(this.info.name);
+                shutdownedServers.push(this.info.name)
                 return {
-                    ...info,
-                    isOnline: false,
+                    status: "stopped",
                     isInactive: false,
+                    name: this.info.name,
+                    type: this.info.type,
+                    playerCount: null,
+                    maxPlayers: null,
+                    rcon: null,
+                    childrenInfo,
                     shutdownedServers,
                 }
-            };
+            }
         }
 
         return {
-            ...info,
+            status: "running",
+            isInactive,
+            name: this.info.name,
+            type: this.info.type,
+            playerCount: null,
+            maxPlayers: null,
+            rcon: null,
+            childrenInfo,
             shutdownedServers,
         }
     }
 
     async statusInfo(timeout: number): Promise<StatusInfo> {
-        const isOnline = await this.isOnline();
+        const status = await this.getServerStatus();
+
         let isInactive = true;
         const childrenInfo: StatusInfo[] = []
         for (const child of this.children) {
-            const info = await child.statusInfo(isOnline, timeout);
+            const info = await child.statusInfo(status, timeout);
             childrenInfo.push(info);
-            if (info.isOnline && !info.isInactive) isInactive = false;
+            if (info.status === "running" && !info.isInactive) isInactive = false;
         }
 
         return {
             isInactive,
-            isOnline,
+            status,
             name: this.info.name,
             type: this.info.type,
             playerCount: null,

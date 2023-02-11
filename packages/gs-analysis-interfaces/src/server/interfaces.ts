@@ -2,18 +2,6 @@ import { Client, ConnectConfig } from "ssh2";
 import http from "http";
 import { z } from "zod";
 
-export interface StatusInfo {
-    isOnline: boolean
-    isInactive: boolean
-    name: string,
-    type: "hw" | "vm" | "gs"
-    playerCount: number | null
-    maxPlayers: number | null
-    rcon: boolean | null
-    childrenInfo: StatusInfo[] | null
-    shutdownedServers: string[]
-}
-
 export const serverInfoValidator = z
     .object({
         name: z.string(),
@@ -22,6 +10,7 @@ export const serverInfoValidator = z
 
 export type ServerInfo = z.infer<typeof serverInfoValidator>;
 export interface Server {
+    givenServerStatus: "starting" | "stopping" | null
     info: ServerInfo
 }
 

@@ -38,18 +38,22 @@ export class ProxmoxHostServer extends HostServer {
     override async stop(): Promise<boolean> {
         const success = await super.stop();
         if (!success) return false;
+        this.givenServerStatus = "stopping";
         try {
             await this.axios.post<PMResponse<null>>(`nodes/${this.info.name}/status`, {
                 command: "shutdown"
             });
+            this.givenServerStatus = null;
             return true;
         } catch (err) {
+            this.givenServerStatus = null;
             throw err;
         }
     }
 
     async startVM(name: string): Promise<boolean> {
-        if (!await this.isOnline()) return false;
+        const status = await this.getServerStatus();
+        if (status !== "running") return false;
         try {
             interface VM {
                 vmid: number,
@@ -73,7 +77,8 @@ export class ProxmoxHostServer extends HostServer {
     }
 
     async shutdownVM(name: string): Promise<boolean> {
-        if (!await this.isOnline()) return true;
+        const status = await this.getServerStatus();
+        if (status !== "running") return true;
         try {
             interface VM {
                 vmid: number,

@@ -115,6 +115,7 @@ export class OldRconClient {
   private host: string
   private port: number
   private password: string
+  private connected: boolean = false;
 
   constructor({ host, port, password }: RconClientOptions) {
     this.host = host
@@ -124,37 +125,36 @@ export class OldRconClient {
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!this.isConnected()) {
-        this.socket = net.createConnection({ host: this.host, port: this.port });
+      this.socket = net.createConnection({ host: this.host, port: this.port });
 
-        const errorCallback = (err: Error) => {
-          reject(err)
-        }
+      const errorCallback = (err: Error) => {
+        reject(err)
+      }
 
-        const dataCallback = (data: Buffer) => {
-          const response = readRCONMessageBuffer(data);
-          if (response.type == 2) {
-            this.socket?.removeListener("error", errorCallback);
-            this.socket?.removeListener("data", dataCallback);
-            if (response.id === -1) {
-              reject(new Error("Auth Failed"));
-            } else {
-              resolve()
-            }
+      const dataCallback = (data: Buffer) => {
+        const response = readRCONMessageBuffer(data);
+        if (response.type == 2) {
+          this.socket?.removeListener("error", errorCallback);
+          this.socket?.removeListener("data", dataCallback);
+          if (response.id === -1) {
+            reject(new Error("Auth Failed"));
+          } else {
+            this.connected = true;
+            resolve()
           }
         }
-
-        this.socket
-          .once("connect", async () => {
-            await this.write(createRCONMessageBuffer({ id: 0, type: 3, body: this.password }));
-          })
-          .on("data", dataCallback)
-          .on("close", (hadError: boolean) => {
-            if (this.socket && this.socket.closed)
-              this.socket = null
-          })
-          .once("error", errorCallback)
       }
+
+      this.socket
+        .once("connect", async () => {
+          await this.write(createRCONMessageBuffer({ id: 0, type: 3, body: this.password }));
+        })
+        .on("data", dataCallback)
+        .on("close", (hadError: boolean) => {
+          if (this.socket && this.socket.closed)
+            this.socket = null
+        })
+        .once("error", errorCallback)
     });
   }
 
@@ -231,13 +231,14 @@ export class OldRconClient {
   }
 
   isConnected() {
-    return !!this.socket && !this.socket.closed
+    return this.connected
   }
 
   disconnect(): Promise<void> {
     return new Promise(resolve => {
       if (this.isConnected()) {
         this.socket!.on("end", () => {
+          this.connected = false;
           resolve();
         });
         this.socket!.end();

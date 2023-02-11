@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { GameServer, gameServerInfoValidator } from "./gameServer";
-import { HardwareHostServer } from "../hostServer/hardwareHostServer";
-import { VMServer } from "../vmServer";
 import { SSHClient } from "ssh-playercount";
-import { StatusInfo } from "../interfaces";
+import { ServerStatus, StatusInfo } from "gs-analysis-types";
+import { DockerHost } from "../dockerhost";
 
 export const commonGameServerInfoValidator = gameServerInfoValidator
     .omit({ checkType: true })
@@ -22,21 +21,22 @@ export const isCommonGameServer = (server: GameServer): server is CommonGameServ
 export class CommonGameServer extends GameServer {
     private sshClient: SSHClient
 
-    constructor(info: CommonGameServerInfo, hostServer: HardwareHostServer | VMServer) {
+    constructor(info: CommonGameServerInfo, hostServer: DockerHost) {
         super(info, hostServer);
         this.sshClient = new SSHClient(hostServer.getSSHOptions(), { port: info.gamePort })
     }
 
-    override async stop(hostIsOnline: boolean | null) {
+    override async stop(hostStatus: ServerStatus | null) {
         this.sshClient.disconnect();
-        return super.stop(hostIsOnline);
+        return super.stop(hostStatus);
     }
 
-    override async statusInfo(hostIsOnline: boolean | null, timeout: number): Promise<StatusInfo> {
-        let isOnline = await this.isOnline(hostIsOnline);
+    override async statusInfo(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
+        const status = await this.getServerStatus(hostStatus);
+
         let playerCount = 0
         let isInactive
-        if (isOnline) {
+        if (status === "running") {
             playerCount = await this.getCommonPlayerCount();
             isInactive = this.checkInactivity(playerCount, timeout);
         } else {
@@ -46,7 +46,7 @@ export class CommonGameServer extends GameServer {
 
         return {
             isInactive,
-            isOnline,
+            status,
             name: this.info.name,
             type: this.info.type,
             playerCount: 0,
