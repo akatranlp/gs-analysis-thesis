@@ -1,3 +1,3 @@
 export const createLogger = (name: string) => (...args: any) => {
-  console.log(`${name}: `, ...args);
+  console.log(`(${new Date().toLocaleString("de-DE")})`, `[${name}]`, ...args);
 }

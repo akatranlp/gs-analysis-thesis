@@ -14,7 +14,7 @@ import { Config } from "./config";
 import { StatusInfo } from "gs-analysis-types";
 import { createLogger } from "logger";
 
-const log = createLogger("Discord-Bot");
+const discordLog = createLogger("Discord-Bot");
 
 interface Command {
     data: SlashCommandBuilder
@@ -249,9 +249,9 @@ export const deployCommands = async (config: Config) => {
     const body = commands.map(c => c.data.toJSON());
 
     try {
-        console.log('Started refreshing application (/) commands.');
+        discordLog('Started refreshing application (/) commands.');
         await rest.put(Routes.applicationGuildCommands(applicationId, guildId), { body });
-        console.log('Successfully reloaded application (/) commands.');
+        discordLog('Successfully reloaded application (/) commands.');
     } catch (err) {
         console.error(err);
     }
@@ -267,7 +267,7 @@ export const createDiscordBot = (app: Application) => {
     });
 
     client.on(Events.ClientReady, async () => {
-        console.log(`Discord Bot logged in as ${client.user!.tag}! I'm on ${client.guilds.cache.size} guild(s)`);
+        discordLog(`Discord Bot logged in as ${client.user!.tag}! I'm on ${client.guilds.cache.size} guild(s)`);
         client.user!.setActivity({ name: "your messages", type: ActivityType.Watching });
 
         const channel = client.channels.cache.get(app.config.discord.channelId);

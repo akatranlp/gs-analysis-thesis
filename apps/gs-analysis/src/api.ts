@@ -5,6 +5,9 @@ import FastifyStatic from "@fastify/static";
 import path from "path";
 import { RconGameServer } from "gs-analysis-interfaces";
 import { configParser } from "./config";
+import { createLogger } from "logger";
+
+const apiLog = createLogger("API");
 
 const wrapZodError = async <T>(callback: () => Promise<T>) => {
     try {
@@ -60,6 +63,7 @@ const rconCommandRouter = (fastify: FastifyInstance, app: Application) => {
             if (!(req.params.servername in app.gsServers)) throw new Error("Server not configured!");
             const server = app.gsServers[req.params.servername];
             if (!(server instanceof RconGameServer)) throw new Error("Server has no RCON");
+            apiLog("Requested the command", body.command, "on the server", server.info.name);
             const result = await server.sendCommand(body.command);
             return { result }
         })
@@ -75,6 +79,7 @@ const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
         wrapZodError(async () => {
             const body = await bodySchema.parseAsync(req.body);
             if (body.state === "stopin") {
+                apiLog("Requested stop if needed!")
                 return await app.stopServersIfNeeded(null, 0);
             }
         })

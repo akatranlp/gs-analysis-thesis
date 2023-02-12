@@ -99,7 +99,11 @@ export class Application {
       appLog("Run loop getting statusinfo");
       await this.getServerStatusInfo(true, null);
     }
-    await this.sendDataToInflux();
+    try {
+      await this.sendDataToInflux();
+    } catch (e) {
+      influxLog((e as Error).message)
+    }
     this.lastStatusUpdate = new Date();
 
     if (this.continueLoop) {
