@@ -5,6 +5,10 @@ import { OldRconClient } from "rcon";
 import rconCommandsMap from "../../rconCommandsMap";
 import { DockerHost } from "../dockerhost";
 
+import { createLogger } from "logger";
+
+const rconLog = createLogger("RCON-GS");
+
 export const rconGameServerInfoValidator = gameServerInfoValidator
     .omit({ checkType: true })
     .extend({
@@ -54,7 +58,7 @@ export class RconGameServer extends GameServer {
             status,
             name: this.info.name,
             type: this.info.type,
-            playerCount: 0,
+            playerCount,
             maxPlayers: null,
             rcon: true,
             childrenInfo: null,
@@ -83,6 +87,9 @@ export class RconGameServer extends GameServer {
 
         const playerCount = commands.outputConverter(response);
         if (Number.isNaN(playerCount)) throw new Error("Playercount is NaN!");
+
+        rconLog(this.info.name, playerCount);
+
         return playerCount;
     }
 }

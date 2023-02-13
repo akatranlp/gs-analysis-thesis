@@ -92,6 +92,7 @@ const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
         wrapZodError(async () => {
             const body = await bodySchemaServers.parseAsync(req.body);
             if (body.state === "start") {
+                apiLog("start", req.params.servername);
                 return await app.startServer(req.params.servername);
             } else if (body.state === "stop") {
                 return await app.stopServer(req.params.servername);

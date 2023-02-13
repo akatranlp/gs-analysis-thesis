@@ -101,7 +101,7 @@ export class HostServer implements Server {
             const info = await child.stopIfNeeded(status, timeout);
             shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
             childrenInfo.push({ ...info, shutdownedServers: [] });
-            if (info.status === "running" && !info.isInactive) isInactive = false;
+            if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
         }
 
         if (isInactive) {

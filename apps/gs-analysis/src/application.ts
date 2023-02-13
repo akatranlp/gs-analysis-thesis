@@ -32,7 +32,7 @@ const appLog = createLogger("App");
 export class Application {
   private influxClient
   private intervalId?: NodeJS.Timer;
-  private continueLoop = true;
+  private continueLoop = false;
   rootServers: Record<string, HostServer> = {};
   vmServers: Record<string, VMServer> = {};
   gsServers: Record<string, GameServer> = {};
@@ -254,22 +254,34 @@ export class Application {
 
   async startServer(serverName: string) {
     if (serverName in this.gsServers) {
-      return this.gsServers[serverName].start();
+      const success = await this.gsServers[serverName].start();
+      await this.getServerStatusInfo(true, null);
+      return success;
     } else if (serverName in this.vmServers) {
-      return this.vmServers[serverName].start();
+      const success = await this.vmServers[serverName].start();
+      await this.getServerStatusInfo(true, null);
+      return success;
     } else if (serverName in this.rootServers) {
-      return this.rootServers[serverName].start();
+      const success = await this.rootServers[serverName].start();
+      await this.getServerStatusInfo(true, null);
+      return success;
     }
     else throw new Error("Server not configured!");
   }
 
   async stopServer(serverName: string) {
     if (serverName in this.gsServers) {
-      return this.gsServers[serverName].stop(null);
+      const success = await this.gsServers[serverName].stop(null);
+      await this.getServerStatusInfo(true, null);
+      return success;
     } else if (serverName in this.vmServers) {
-      return this.vmServers[serverName].stop();
+      const success = await this.vmServers[serverName].stop();
+      await this.getServerStatusInfo(true, null);
+      return success;
     } else if (serverName in this.rootServers) {
-      return this.rootServers[serverName].stop();
+      const success = await this.rootServers[serverName].stop();
+      await this.getServerStatusInfo(true, null);
+      return success;
     }
     else throw new Error("Server not configured!");
   }

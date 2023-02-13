@@ -1,0 +1,363 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GS Analysis API",
+    "version": "v1",
+    "contact": {
+      "name": "GitHub",
+      "url": "https://github.com/akatranlp/gs-analysis"
+    },
+    "license": {
+      "name": "GPL-3.0",
+      "url": "https://raw.githubusercontent.com/akatranlp/gs-analysis/master/LICENSE"
+    },
+    "description": "---\n# API to control and query the GS Analysis Application"
+  },
+  "components": {
+    "schemas": {
+      "StatusInfo": {
+        "type": "object",
+        "required": [
+          "status",
+          "isInactive",
+          "type",
+          "playerCount",
+          "rcon",
+          "shutdownedServers",
+          "childrenInfo"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "starting",
+              "running",
+              "stopping",
+              "stopped"
+            ]
+          },
+          "isInactive": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "hw",
+              "vm",
+              "gs"
+            ]
+          },
+          "playerCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxPlayers": {
+            "type": "number",
+            "nullable": true
+          },
+          "rcon": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "shutdownedServers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "childrenInfo": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/StatusInfo"
+            }
+          }
+        }
+      },
+      "StatusResponse": {
+        "type": "object",
+        "required": [
+          "statusGraph"
+        ],
+        "properties": {
+          "lastStatusUpdate": {
+            "type": "string"
+          },
+          "statusGraph": {
+            "type": "object",
+            "properties": {
+              "string": {
+                "$ref": "#/components/schemas/StatusInfo"
+              }
+            }
+          }
+        }
+      },
+      "ConfigInput": {
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "number"
+          },
+          "timeout": {
+            "type": "number"
+          },
+          "stopIfNeeded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RconInput": {
+        "type": "object",
+        "required": [
+          "commmand"
+        ],
+        "properties": {
+          "command": {
+            "type": "string"
+          }
+        }
+      },
+      "RconResponse": {
+        "type": "object",
+        "required": [
+          "result"
+        ],
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        }
+      },
+      "StartStopStopIfNeededInput": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "start",
+              "stop",
+              "stopin"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hello": {
+                      "type": "string",
+                      "enum": [
+                        "world"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/config": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/servers": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "state"
+                ],
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "stopin"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/servers/{servername}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "servername",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusInfo"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "name": "servername",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartStopStopIfNeededInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/servers/{servername}/rcon": {
+      "put": {
+        "parameters": [
+          {
+            "name": "servername",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RconInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RconResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  }
+}

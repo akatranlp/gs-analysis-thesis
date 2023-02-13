@@ -145,7 +145,7 @@ export class VMServer implements Server {
         for (const child of this.children) {
             const info = await child.statusInfo(status, timeout);
             childrenInfo.push(info);
-            if (info.status === "running" && !info.isInactive) isInactive = false;
+            if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
         }
 
         return {

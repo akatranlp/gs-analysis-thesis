@@ -25,8 +25,8 @@ const playerCountCommands: Record<string, { command: string, outputConverter: (d
     conan: {
         command: "listplayers",
         outputConverter: (data) => {
-            const value = data.match(/\n/)?.length
-            return value ? value - 1 : 0
+            const value = data.split("\n").length
+            return value ? value - 2 : 0
         }
     },
 }

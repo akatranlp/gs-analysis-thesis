@@ -60,6 +60,7 @@ RUN npx turbo run build --filter=gs-analysis...
 # RUN mkdir /app/apps/gs-analysis/dist/public
 
 COPY --from=installerWeb /app/apps/web/dist/ /app/apps/gs-analysis/dist/public/
+COPY --from=builderApp /app/apps/gs-analysis/src/public /app/apps/gs-analysis/dist/public/
 
 USER root
 EXPOSE 3000
