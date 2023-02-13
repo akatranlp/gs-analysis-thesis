@@ -76,16 +76,18 @@ export class VMServer implements Server {
     async stopIfNeeded(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
         const status = await this.getServerStatus(hostStatus);
         if (status !== "running") return this.statusInfo(hostStatus, timeout);
+
         let isInactive = true;
         let shutdownedServers: string[] = []
-
-        const childrenInfo: StatusInfo[] = []
-        for (const child of this.children) {
-            const info = await child.stopIfNeeded(status, timeout);
-            shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
-            childrenInfo.push({ ...info, shutdownedServers: [] });
-            if (info.status === "running" && !info.isInactive) isInactive = false;
-        }
+        const childrenInfo = (await Promise.all(this.children.map(child => child.stopIfNeeded(status, timeout))))
+            .map(info => {
+                if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
+                shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
+                return {
+                    ...info,
+                    shutdownedServers: []
+                }
+            });
 
         if (isInactive) {
             const success = await this.stop();
@@ -140,13 +142,12 @@ export class VMServer implements Server {
     async statusInfo(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
         const status = await this.getServerStatus(hostStatus);
 
+        const childrenInfo = await Promise.all(this.children.map(child => child.statusInfo(status, timeout)));
+
         let isInactive = true;
-        const childrenInfo: StatusInfo[] = []
-        for (const child of this.children) {
-            const info = await child.statusInfo(status, timeout);
-            childrenInfo.push(info);
+        childrenInfo.forEach(info => {
             if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
-        }
+        });
 
         return {
             isInactive: status !== "running" ? false : isInactive,

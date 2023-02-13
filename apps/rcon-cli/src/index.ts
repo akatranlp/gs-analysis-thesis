@@ -26,5 +26,23 @@ const main2 = async () => {
     log(playerCount);
 }
 
+const test = async () => {
+    await delay(2000)
+    return 1
+}
 
-main2();
+const main3 = async () => {
+    const test2 = {
+        test: test()
+    }
+
+    const promises: Promise<Record<string, number>>[] = []
+    for (const [key, value] of Object.entries(test2)) {
+        promises.push(new Promise(async res => res({ [key]: await value })))
+    }
+
+    const values = await Promise.all(promises);
+    console.log(values);
+}
+
+main3();

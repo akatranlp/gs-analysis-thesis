@@ -48,6 +48,7 @@ export class RconGameServer extends GameServer {
         if (status === "running") {
             playerCount = await this.getRconPlayerCount();
             isInactive = this.checkInactivity(playerCount, timeout);
+            rconLog(this.info.name, "isOnline and has", playerCount, "player on it!");
         } else {
             this.inactiveTime = -1;
             isInactive = false;
@@ -87,8 +88,6 @@ export class RconGameServer extends GameServer {
 
         const playerCount = commands.outputConverter(response);
         if (Number.isNaN(playerCount)) throw new Error("Playercount is NaN!");
-
-        rconLog(this.info.name, playerCount);
 
         return playerCount;
     }

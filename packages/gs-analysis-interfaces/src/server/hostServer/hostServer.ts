@@ -95,14 +95,15 @@ export class HostServer implements Server {
 
         let isInactive = true;
         let shutdownedServers: string[] = []
-
-        const childrenInfo: StatusInfo[] = []
-        for (const child of this.children) {
-            const info = await child.stopIfNeeded(status, timeout);
-            shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
-            childrenInfo.push({ ...info, shutdownedServers: [] });
-            if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
-        }
+        const childrenInfo = (await Promise.all(this.children.map(child => child.stopIfNeeded(status, timeout))))
+            .map(info => {
+                if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
+                shutdownedServers = [...shutdownedServers, ...info.shutdownedServers];
+                return {
+                    ...info,
+                    shutdownedServers: []
+                }
+            });
 
         if (isInactive) {
             const success = await this.stop();
@@ -138,13 +139,12 @@ export class HostServer implements Server {
     async statusInfo(timeout: number): Promise<StatusInfo> {
         const status = await this.getServerStatus();
 
+        const childrenInfo = await Promise.all(this.children.map(child => child.statusInfo(status, timeout)));
+
         let isInactive = true;
-        const childrenInfo: StatusInfo[] = []
-        for (const child of this.children) {
-            const info = await child.statusInfo(status, timeout);
-            childrenInfo.push(info);
-            if (info.status === "running" && !info.isInactive) isInactive = false;
-        }
+        childrenInfo.forEach(info => {
+            if (info.status === "starting" || (info.status === "running" && !info.isInactive)) isInactive = false;
+        });
 
         return {
             isInactive: status !== "running" ? false : isInactive,

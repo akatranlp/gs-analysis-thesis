@@ -204,10 +204,14 @@ export class Application {
         return this.statusGraph;
       }
 
-      const map: Record<string, StatusInfo> = {}
-      for (const [name, rootServer] of Object.entries(this.rootServers)) {
-        map[name] = await rootServer.statusInfo(this.config.timeout);
-      }
+      const promisses: Promise<Record<string, StatusInfo>>[] = Object.entries(this.rootServers)
+        .map(([name, rootServer]) =>
+          new Promise(async res =>
+            res({ [name]: await rootServer.statusInfo(this.config.timeout) })))
+
+      const values = await Promise.all(promisses);
+      const map = values.reduce((prev, curr) => ({ ...prev, ...curr }), {});
+
       this.statusGraph = map;
       return map;
     }

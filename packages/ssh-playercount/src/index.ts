@@ -9,6 +9,7 @@ export class SSHClient {
   }
 
   async disconnect() {
+    if (!this.isConnected()) return this.client.dispose();
     await this.client.execCommand("sudo kill `pidof tcpdump`");
     await this.client.execCommand(`rm /tmp/${this.serverOptions.port}`);
     this.client.dispose();

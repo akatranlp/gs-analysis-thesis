@@ -44,12 +44,11 @@ export class CommonGameServer extends GameServer {
         if (status === "running") {
             playerCount = await this.getCommonPlayerCount();
             isInactive = this.checkInactivity(playerCount, timeout);
+            comonLog(this.info.name, "isOnline and has", playerCount, "player on it!");
         } else {
             this.inactiveTime = -1;
             isInactive = false;
         }
-
-        comonLog(this.info.name, playerCount);
 
         return {
             isInactive,
