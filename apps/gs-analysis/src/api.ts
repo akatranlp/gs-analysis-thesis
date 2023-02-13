@@ -95,8 +95,10 @@ const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
                 apiLog("start", req.params.servername);
                 return await app.startServer(req.params.servername);
             } else if (body.state === "stop") {
+                apiLog("stop", req.params.servername);
                 return await app.stopServer(req.params.servername);
             } else if (body.state === "stopin") {
+                apiLog("stop-if-needed", req.params.servername);
                 return await app.stopServersIfNeeded(req.params.servername, 0);
             }
         })
