@@ -211,7 +211,7 @@ paths:
         500:
           description: Internal Server Error
   /api/servers/{servername}/rcon:
-    put:
+    post:
       parameters:
         - name: servername
           in: path

@@ -322,7 +322,7 @@
       }
     },
     "/api/servers/{servername}/rcon": {
-      "put": {
+      "post": {
         "parameters": [
           {
             "name": "servername",
