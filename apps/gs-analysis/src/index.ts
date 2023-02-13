@@ -10,7 +10,7 @@ const mainLog = createLogger("Main");
 const errorLog = createLogger("Error");
 
 const main = async () => {
-    const config = await loadAndParseConfig("./config.json");
+    const config = await loadAndParseConfig();
 
     const app = new Application(config);
 
@@ -25,8 +25,8 @@ const main = async () => {
             appLog("App is running!");
 
             const fastify = createFastifyApi(app);
-            await fastify.listen({ port: config.apiPort, host: "0.0.0.0" });
-            apiLog(`Api is started on Port ${config.apiPort}`);
+            await fastify.listen({ port: config.api.port, host: "0.0.0.0" });
+            apiLog(`Api is started on Port ${config.api.port}`);
 
             const discordClient = createDiscordBot(app);
             await discordClient.login(config.discord.botToken);
@@ -46,8 +46,8 @@ const main = async () => {
         try {
             mainLog("Starting to launch only the API!");
             const fastify = createFastifyApi(app);
-            await fastify.listen({ port: config.apiPort, host: "0.0.0.0" });
-            apiLog(`Api is started on Port ${config.apiPort}`);
+            await fastify.listen({ port: config.api.port, host: "0.0.0.0" });
+            apiLog(`Api is started on Port ${config.api.port}`);
         } catch (err) {
             errorLog(err);
             process.exit(1);

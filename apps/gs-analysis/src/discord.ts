@@ -165,9 +165,9 @@ const createCommands = (config: Config): Command[] => {
                 const shutdownIfNeeded = interaction.options.getBoolean("shutdown-if-needed");
                 const interval = interaction.options.getNumber("interval");
                 const timeout = interaction.options.getInteger("timeout");
-                if (shutdownIfNeeded != null) app.config.stopIfNeeded = shutdownIfNeeded;
-                if (timeout != null) app.config.timeout = timeout;
-                if (interval != null && interval >= 0.1 && interval < 5) app.config.interval = interval;
+                if (shutdownIfNeeded != null) app.config.app.stopIfNeeded = shutdownIfNeeded;
+                if (timeout != null) app.config.app.timeout = timeout;
+                if (interval != null && interval >= 0.1 && interval < 5) app.config.app.interval = interval;
                 await interaction.reply({ embeds: [new EmbedBuilder().setTitle("Config")], ephemeral: true });
             }
         }

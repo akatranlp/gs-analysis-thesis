@@ -33,7 +33,7 @@ const statusRouter = (fastify: FastifyInstance, app: Application) => {
 }
 
 const configUpdateRouter = (fastify: FastifyInstance, app: Application) => {
-    const inputSchema = configParser.pick({
+    const inputSchema = configParser.shape.app.removeDefault().pick({
         timeout: true,
         interval: true,
         stopIfNeeded: true
@@ -44,9 +44,9 @@ const configUpdateRouter = (fastify: FastifyInstance, app: Application) => {
     fastify.put("/api/config", async (req: CustomRequest, res) => (
         wrapZodError(async () => {
             const body = await inputSchema.parseAsync(req.body);
-            if (body.interval) app.config.interval = body.interval
-            if (body.timeout) app.config.timeout = body.timeout
-            if (body.stopIfNeeded) app.config.stopIfNeeded = body.stopIfNeeded
+            if (body.interval) app.config.app.interval = body.interval
+            if (body.timeout) app.config.app.timeout = body.timeout
+            if (body.stopIfNeeded) app.config.app.stopIfNeeded = body.stopIfNeeded
             return {};
         })
     ));

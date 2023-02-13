@@ -92,7 +92,7 @@ export class Application {
   }
 
   private async loop() {
-    if (this.config.stopIfNeeded) {
+    if (this.config.app.stopIfNeeded) {
       appLog("Run loop stop servers if needed");
       await this.stopServersIfNeeded(null, null);
     } else {
@@ -109,7 +109,7 @@ export class Application {
     if (this.continueLoop) {
       this.intervalId = setTimeout(async () => {
         await this.loop();
-      }, getMilliSecondsToInterval(this.config.interval));
+      }, getMilliSecondsToInterval(this.config.app.interval));
     }
   }
 
@@ -207,7 +207,7 @@ export class Application {
       const promisses: Promise<Record<string, StatusInfo>>[] = Object.entries(this.rootServers)
         .map(([name, rootServer]) =>
           new Promise(async res =>
-            res({ [name]: await rootServer.statusInfo(this.config.timeout) })))
+            res({ [name]: await rootServer.statusInfo(this.config.app.timeout) })))
 
       const values = await Promise.all(promisses);
       const map = values.reduce((prev, curr) => ({ ...prev, ...curr }), {});
@@ -218,18 +218,18 @@ export class Application {
 
     let info: StatusInfo
     if (serverName in this.gsServers) {
-      info = await this.gsServers[serverName].statusInfo(null, this.config.timeout)
+      info = await this.gsServers[serverName].statusInfo(null, this.config.app.timeout)
     } else if (serverName in this.vmServers) {
-      info = await this.vmServers[serverName].statusInfo(null, this.config.timeout)
+      info = await this.vmServers[serverName].statusInfo(null, this.config.app.timeout)
     } else if (serverName in this.rootServers) {
-      info = await this.rootServers[serverName].statusInfo(this.config.timeout)
+      info = await this.rootServers[serverName].statusInfo(this.config.app.timeout)
     }
     else throw new Error("Server not configured!");
     return { [serverName]: info };
   }
 
   async stopServersIfNeeded(serverName: string | null, timeout: number | null) {
-    timeout = timeout === 0 ? 0 : timeout || this.config.timeout
+    timeout = timeout === 0 ? 0 : timeout || this.config.app.timeout
     if (serverName == null) {
       const map: Record<string, StatusInfo> = {}
       let shutdownedServers: string[] = []

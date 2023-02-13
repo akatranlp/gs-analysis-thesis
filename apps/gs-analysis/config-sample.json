@@ -1,4 +1,24 @@
 {
+    "discord": {
+        "botToken": "token",
+        "applicationId": "id",
+        "guildId": "id",
+        "channelId": "id"
+    },
+    "influx": {
+        "url": "url",
+        "token": "token",
+        "org": "org",
+        "bucket": "bucket"
+    },
+    "api": {
+        "port": 3000
+    },
+    "app": {
+        "stopIfNeeded": false,
+        "interval": 0.5,
+        "timeout": 5
+    },
     "servers": [
         {
             "name": "hw-host01",
