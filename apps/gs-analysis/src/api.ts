@@ -29,8 +29,7 @@ const statusRouter = (fastify: FastifyInstance, app: Application) => {
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema> }>
 
     fastify.get("/api/servers/:servername", async (req: CustomRequest, res) => {
-        const info = await app.getServerStatusInfo(false, req.params.servername);
-        return info[0];
+        return (await app.getServerStatusInfo(false, req.params.servername))[0];
     });
 }
 
@@ -101,8 +100,7 @@ const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
                 return await app.stopServer(req.params.servername);
             } else if (body.state === "stopin") {
                 apiLog("stop-if-needed", req.params.servername);
-                const info = await app.stopServersIfNeeded(req.params.servername, 0);
-                return info[0];
+                return (await app.stopServersIfNeeded(req.params.servername, 0))[0]
             }
         })
     ))

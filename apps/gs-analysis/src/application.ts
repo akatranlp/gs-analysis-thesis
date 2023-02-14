@@ -223,8 +223,8 @@ export class Application {
 
       this.shutdownedServers = []
       const values = (await Promise.all(Object.values(this.rootServers).map(rootServer => rootServer.stopIfNeeded(timeout!))))
-        .map(entry => {
-          this.shutdownedServers = [...this.shutdownedServers, ...entry.shutdownedServers]
+        .map(info => {
+          this.shutdownedServers = [...this.shutdownedServers, ...info.shutdownedServers]
           return {
             ...info,
             shutdownedServers: []

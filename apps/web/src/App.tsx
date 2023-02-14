@@ -190,7 +190,7 @@ const ShutdownedServersMessage: React.FC<{ servers: ShutdownedMessage, setShutdo
 
     return (
       <div className="relative p-3 flex justify-center text-white bg-blue-700 gap-3">
-        <div className="">{servers.shutDowntime.toLocaleString("de-DE")}</div>
+        <div>{servers.shutDowntime.toLocaleString("de-DE")}</div>
         {servers.shutdownedServers.map(server => <div key={server}>{server}</div>)}
         <button className="absolute top-0 right-1" onClick={removeMessage}>&#x2715;</button>
       </div>
@@ -210,8 +210,8 @@ const App: React.FC = () => {
     queryFn: getServerStatus,
     refetchInterval: 5000,
     onSuccess: (data) => {
-      if (data.shutdownedServers.length == 0) setShutdownedServers(undefined);
-      if (data.shutdownedServers.every(entry => shutdownedServers && entry in shutdownedServers.shutdownedServers)) return;
+      if (data.shutdownedServers.length === 0) return setShutdownedServers(undefined);
+      if (data.shutdownedServers.every(entry => shutdownedServers && shutdownedServers.shutdownedServers.filter(e => e === entry).length > 0)) return;
       setShutdownedServers({
         shutdownedServers: data.shutdownedServers,
         shutDowntime: data.lastStatusUpdate
