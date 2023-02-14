@@ -21,15 +21,17 @@ const wrapZodError = async <T>(callback: () => Promise<T>) => {
 const statusRouter = (fastify: FastifyInstance, app: Application) => {
     fastify.get("/api/servers", async () => ({
         lastStatusUpdate: app.lastStatusUpdate,
-        statusGraph: await app.getServerStatusInfo(false, null)
+        statusGraph: await app.getServerStatusInfo(false, null),
+        shutdownedServers: app.shutdownedServers,
     }));
 
     const inputSchema = z.object({ servername: z.string() });
     type CustomRequest = FastifyRequest<{ Params: z.infer<typeof inputSchema> }>
 
-    fastify.get("/api/servers/:servername", (req: CustomRequest, res) => (
-        app.getServerStatusInfo(false, req.params.servername)
-    ));
+    fastify.get("/api/servers/:servername", async (req: CustomRequest, res) => {
+        const info = await app.getServerStatusInfo(false, req.params.servername);
+        return info[0];
+    });
 }
 
 const configUpdateRouter = (fastify: FastifyInstance, app: Application) => {
@@ -99,7 +101,8 @@ const startStopServerRouter = (fastify: FastifyInstance, app: Application) => {
                 return await app.stopServer(req.params.servername);
             } else if (body.state === "stopin") {
                 apiLog("stop-if-needed", req.params.servername);
-                return await app.stopServersIfNeeded(req.params.servername, 0);
+                const info = await app.stopServersIfNeeded(req.params.servername, 0);
+                return info[0];
             }
         })
     ))

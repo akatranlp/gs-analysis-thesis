@@ -174,7 +174,7 @@ const createCommands = (config: Config): Command[] => {
     }]
 }
 
-const produceReplyFromServerInfo = (info: Record<string, StatusInfo>) => {
+const produceReplyFromServerInfo = (info: StatusInfo[]) => {
     const createFields = (info: StatusInfo) => {
         if (info.childrenInfo == null || info.childrenInfo.length === 0) {
             return [{
@@ -229,7 +229,7 @@ const produceReplyFromServerInfo = (info: Record<string, StatusInfo>) => {
         .setTitle("Server Status Info!")
         .setTimestamp()
 
-    Object.values(info).map(e => createFields(e)).filter(e => e != undefined).map((e, index, array) => index === array.length - 1 ? e! : [...e!, { name: '\u200B', value: '\u200B' }]).forEach(e => embedBuilder.addFields(e))
+    info.map(e => createFields(e)).filter(e => e != undefined).map((e, index, array) => index === array.length - 1 ? e! : [...e!, { name: '\u200B', value: '\u200B' }]).forEach(e => embedBuilder.addFields(e))
     return embedBuilder;
 }
 

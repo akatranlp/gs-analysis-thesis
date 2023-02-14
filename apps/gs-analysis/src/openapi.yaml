@@ -62,17 +62,9 @@ components:
           items:
             $ref: '#/components/schemas/StatusInfo'
     StatusResponse:
-      type: object
-      required:
-        - statusGraph
-      properties:
-        lastStatusUpdate:
-          type: string
-        statusGraph:
-          type: object
-          properties:  
-            string:
-              $ref: '#/components/schemas/StatusInfo'
+      type: array
+      items:
+        $ref: '#/components/schemas/StatusInfo'
     ConfigInput:
       type: object
       properties:

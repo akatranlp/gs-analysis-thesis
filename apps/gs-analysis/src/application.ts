@@ -36,7 +36,8 @@ export class Application {
   rootServers: Record<string, HostServer> = {};
   vmServers: Record<string, VMServer> = {};
   gsServers: Record<string, GameServer> = {};
-  statusGraph: Record<string, StatusInfo> | null = null;
+  statusGraph: StatusInfo[] | null = null;
+  shutdownedServers: string[] = [];
   lastStatusUpdate = new Date();
   private discordBot: Client | null = null;
 
@@ -125,18 +126,15 @@ export class Application {
 
     influxLog("Start sending data!");
 
-    let isOnlineCounter = 0;
     for (const rootInfo of Object.values(this.statusGraph)) {
-      isOnlineCounter++;
-
       const inactivePoint = new Point("onlineInactiveStatus")
         .tag("name", `${rootInfo.name}-Inactive`)
-        .floatField("value", rootInfo.isInactive ? isOnlineCounter : 0)
+        .floatField("value", rootInfo.isInactive ? 1.5 : 0)
         .timestamp(currentDate);
 
       const onlinePoint = new Point("onlineInactiveStatus")
         .tag("name", `${rootInfo.name}-Online`)
-        .floatField("value", (rootInfo.status === "running" || rootInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+        .floatField("value", (rootInfo.status === "running" || rootInfo.status === "starting") ? 1 : 0)
         .timestamp(currentDate);
 
       writeApi.writePoint(inactivePoint);
@@ -144,16 +142,14 @@ export class Application {
 
       if (!rootInfo.childrenInfo) continue;
       for (const vmInfo of rootInfo.childrenInfo) {
-        isOnlineCounter++;
-
         const inactivePoint = new Point("onlineInactiveStatus")
           .tag("name", `${vmInfo.name}-Inactive`)
-          .floatField("value", vmInfo.isInactive ? isOnlineCounter : 0)
+          .floatField("value", vmInfo.isInactive ? 1.5 : 0)
           .timestamp(currentDate);
 
         const onlinePoint = new Point("onlineInactiveStatus")
           .tag("name", `${vmInfo.name}-Online`)
-          .floatField("value", (vmInfo.status === "running" || vmInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+          .floatField("value", (vmInfo.status === "running" || vmInfo.status === "starting") ? 1 : 0)
           .timestamp(currentDate);
 
         writeApi.writePoint(inactivePoint);
@@ -170,16 +166,14 @@ export class Application {
 
         if (!vmInfo.childrenInfo) continue;
         for (const gsInfo of vmInfo.childrenInfo) {
-          isOnlineCounter++;
-
           const inactivePoint = new Point("onlineInactiveStatus")
             .tag("name", `${gsInfo.name}-Inactive`)
-            .floatField("value", gsInfo.isInactive ? isOnlineCounter : 0)
+            .floatField("value", gsInfo.isInactive ? 1.5 : 0)
             .timestamp(currentDate);
 
           const onlinePoint = new Point("onlineInactiveStatus")
             .tag("name", `${gsInfo.name}-Online`)
-            .floatField("value", (gsInfo.status === "running" || gsInfo.status === "starting") ? isOnlineCounter + 0.5 : 0)
+            .floatField("value", (gsInfo.status === "running" || gsInfo.status === "starting") ? 1 : 0)
             .timestamp(currentDate);
 
           writeApi.writePoint(inactivePoint);
@@ -204,16 +198,11 @@ export class Application {
         return this.statusGraph;
       }
 
-      const promisses: Promise<Record<string, StatusInfo>>[] = Object.entries(this.rootServers)
-        .map(([name, rootServer]) =>
-          new Promise(async res =>
-            res({ [name]: await rootServer.statusInfo(this.config.app.timeout) })))
+      const values = await Promise.all(Object.values(this.rootServers)
+        .map((rootServer) => rootServer.statusInfo(this.config.app.timeout)))
 
-      const values = await Promise.all(promisses);
-      const map = values.reduce((prev, curr) => ({ ...prev, ...curr }), {});
-
-      this.statusGraph = map;
-      return map;
+      this.statusGraph = values;
+      return values;
     }
 
     let info: StatusInfo
@@ -225,22 +214,26 @@ export class Application {
       info = await this.rootServers[serverName].statusInfo(this.config.app.timeout)
     }
     else throw new Error("Server not configured!");
-    return { [serverName]: info };
+    return [info];
   }
 
   async stopServersIfNeeded(serverName: string | null, timeout: number | null) {
     timeout = timeout === 0 ? 0 : timeout || this.config.app.timeout
     if (serverName == null) {
-      const map: Record<string, StatusInfo> = {}
-      let shutdownedServers: string[] = []
-      for (const [name, rootServer] of Object.entries(this.rootServers)) {
-        const info = await rootServer.stopIfNeeded(timeout);
-        shutdownedServers = [...shutdownedServers, ...info.shutdownedServers]
-        map[name] = info;
-      }
-      if (this.discordBot) this.discordBot.emit("stop-if-needed", shutdownedServers);
-      this.statusGraph = map;
-      return map;
+
+      this.shutdownedServers = []
+      const values = (await Promise.all(Object.values(this.rootServers).map(rootServer => rootServer.stopIfNeeded(timeout!))))
+        .map(entry => {
+          this.shutdownedServers = [...this.shutdownedServers, ...entry.shutdownedServers]
+          return {
+            ...info,
+            shutdownedServers: []
+          }
+        })
+
+      if (this.discordBot) this.discordBot.emit("stop-if-needed", this.shutdownedServers);
+      this.statusGraph = values;
+      return values;
     }
 
     let info: StatusInfo
@@ -253,7 +246,8 @@ export class Application {
     }
     else throw new Error("Server not configured!");
     if (this.discordBot) this.discordBot.emit("stop-if-needed", info.shutdownedServers);
-    return { [serverName]: info };
+    this.shutdownedServers = info.shutdownedServers;
+    return [info];
   }
 
   async startServer(serverName: string) {
