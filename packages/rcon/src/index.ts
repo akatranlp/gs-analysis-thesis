@@ -1,7 +1,5 @@
 import net from "net";
 
-import { PromiseSocket } from "promise-socket";
-
 interface RCONPacket {
   id: number,
   type: number,
@@ -33,83 +31,7 @@ const readRCONMessageBuffer = (buffer: Buffer): RCONPacket => {
   }
 }
 
-
 export class RconClient {
-  private socket = new PromiseSocket()
-  private host: string
-  private port: number
-  private password: string
-  private connected = false
-
-  constructor({ host, port, password }: RconClientOptions) {
-    this.host = host
-    this.port = port
-    this.password = password
-  }
-
-  async connect(): Promise<void> {
-    await this.socket.connect(this.port, this.host);
-    await this.socket.write(createRCONMessageBuffer({ id: 187, type: 3, body: this.password }));
-
-    for await (const chunk of this.socket) {
-      const response = readRCONMessageBuffer(chunk as Buffer);
-      if (response.type == 2) {
-        if (response.id === -1) {
-          throw new Error("Auth failed");
-        }
-        this.connected = true;
-        break;
-      }
-    }
-  }
-
-  async sendCommand(command: string): Promise<string> {
-    if (!this.connected || this.socket.socket.closed) {
-      throw new Error("socket not connected");
-    }
-    await this.socket.write(createRCONMessageBuffer({ id: 420, type: 2, body: command }));
-    for await (const chunk of this.socket) {
-      const response = readRCONMessageBuffer(chunk as Buffer);
-      if (response.id === -1)
-        throw new Error("Auth failed");
-      return response.body
-    }
-    throw new Error("No Response")
-  }
-
-  async sendCommandWithLongResponse(command: string): Promise<string> {
-    if (!this.connected || this.socket.socket.closed) {
-      throw new Error("socket not connected");
-    }
-    await this.socket.write(createRCONMessageBuffer({ id: 420, type: 2, body: command }));
-    await this.socket.write(createRCONMessageBuffer({ id: 1337, type: 2, body: "" }));
-
-    let data = "";
-    for await (const chunk of this.socket) {
-      const response = readRCONMessageBuffer(chunk as Buffer);
-      if (response.id === -1)
-        throw new Error("Auth failed");
-      else if (response.id === 420) {
-        data += response.body
-        continue
-      }
-      return data
-    }
-    throw new Error("No Response")
-  }
-
-  disconnect(): Promise<void> {
-    this.connected = false;
-    return this.socket.end();
-  }
-
-  isConnected() {
-    return this.connected;
-  }
-}
-
-
-export class OldRconClient {
   socket: net.Socket | null = null
   private data: string = ""
   private host: string
@@ -158,7 +80,7 @@ export class OldRconClient {
     });
   }
 
-  sendCommandWithLong(command: string): Promise<string> {
+  sendCommandWithLongResponse(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
 
       const errorCallback = (err: Error) => {

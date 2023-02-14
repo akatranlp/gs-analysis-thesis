@@ -1,7 +1,7 @@
 import { ServerStatus, StatusInfo } from "gs-analysis-types";
 import { z } from "zod";
 import { GameServer, gameServerInfoValidator } from "./gameServer";
-import { OldRconClient } from "rcon";
+import { RconClient } from "rcon";
 import rconCommandsMap from "../../rconCommandsMap";
 import { DockerHost } from "../dockerhost";
 
@@ -24,11 +24,11 @@ export const isRconGameServer = (server: GameServer): server is RconGameServer =
 }
 
 export class RconGameServer extends GameServer {
-    rconClient: OldRconClient
+    rconClient: RconClient
 
     constructor(info: RconGameServerInfo, hostServer: DockerHost) {
         super(info, hostServer);
-        this.rconClient = new OldRconClient({
+        this.rconClient = new RconClient({
             host: hostServer.info.ipAdress,
             port: info.rconPort,
             password: info.rconPassword

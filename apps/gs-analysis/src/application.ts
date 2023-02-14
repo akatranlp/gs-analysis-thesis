@@ -30,14 +30,14 @@ const appLog = createLogger("App");
 
 
 export class Application {
-  private influxClient
+  private influxClient: InfluxDB;
   private intervalId?: NodeJS.Timer;
   private continueLoop = false;
   rootServers: Record<string, HostServer> = {};
   vmServers: Record<string, VMServer> = {};
   gsServers: Record<string, GameServer> = {};
   statusGraph: StatusInfo[] | null = null;
-  shutdownedServers: string[] = [];
+  shutdownedServers: { timestamp: Date, servers: string[] } = { timestamp: new Date(), servers: [] };
   lastStatusUpdate = new Date();
   private discordBot: Client | null = null;
 
@@ -221,15 +221,20 @@ export class Application {
     timeout = timeout === 0 ? 0 : timeout || this.config.app.timeout
     if (serverName == null) {
 
-      this.shutdownedServers = []
+      let shutdownedServers: string[] = []
       const values = (await Promise.all(Object.values(this.rootServers).map(rootServer => rootServer.stopIfNeeded(timeout!))))
         .map(info => {
-          this.shutdownedServers = [...this.shutdownedServers, ...info.shutdownedServers]
+          shutdownedServers = [...shutdownedServers, ...info.shutdownedServers]
           return {
             ...info,
             shutdownedServers: []
           }
         })
+
+      this.shutdownedServers = {
+        timestamp: new Date(),
+        servers: shutdownedServers
+      }
 
       if (this.discordBot) this.discordBot.emit("stop-if-needed", this.shutdownedServers);
       this.statusGraph = values;
@@ -246,7 +251,10 @@ export class Application {
     }
     else throw new Error("Server not configured!");
     if (this.discordBot) this.discordBot.emit("stop-if-needed", info.shutdownedServers);
-    this.shutdownedServers = info.shutdownedServers;
+    this.shutdownedServers = {
+      timestamp: new Date(),
+      servers: info.shutdownedServers
+    }
     return [info];
   }
 

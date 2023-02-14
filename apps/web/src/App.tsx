@@ -69,7 +69,7 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
 interface ServerStatus {
   lastStatusUpdate: Date
   statusGraph: StatusInfo[]
-  shutdownedServers: string[]
+  shutdownedServers: { timestamp: Date, servers: string[] }
 }
 
 const getServerStatus = async () => {
@@ -178,8 +178,8 @@ const RconMessage: React.FC<{ message: RconMessage }> = ({ message }) => {
 }
 
 interface ShutdownedMessage {
-  shutdownedServers: string[]
-  shutDowntime: Date
+  timestamp: Date
+  servers: string[]
 }
 
 const ShutdownedServersMessage: React.FC<{ servers: ShutdownedMessage, setShutdownedServersMessages: React.Dispatch<React.SetStateAction<ShutdownedMessage[]>> }> =
@@ -189,9 +189,9 @@ const ShutdownedServersMessage: React.FC<{ servers: ShutdownedMessage, setShutdo
     }
 
     return (
-      <div className="relative p-3 flex justify-center text-white bg-blue-700 gap-3">
-        <div>{servers.shutDowntime.toLocaleString("de-DE")}</div>
-        {servers.shutdownedServers.map(server => <div key={server}>{server}</div>)}
+      <div className="relative p-3 rounded flex justify-center text-white bg-blue-700 gap-3">
+        <div>{servers.timestamp.toLocaleString("de-DE")}</div>
+        {servers.servers.map(server => <div key={server}>{server}</div>)}
         <button className="absolute top-0 right-1" onClick={removeMessage}>&#x2715;</button>
       </div>
     )
@@ -210,17 +210,14 @@ const App: React.FC = () => {
     queryFn: getServerStatus,
     refetchInterval: 5000,
     onSuccess: (data) => {
-      if (data.shutdownedServers.length === 0) return setShutdownedServers(undefined);
-      if (data.shutdownedServers.every(entry => shutdownedServers && shutdownedServers.shutdownedServers.filter(e => e === entry).length > 0)) return;
-      setShutdownedServers({
-        shutdownedServers: data.shutdownedServers,
-        shutDowntime: data.lastStatusUpdate
-      });
+      if (data.shutdownedServers.servers.length === 0) return setShutdownedServers(undefined);
+      if (data.shutdownedServers.servers.every(entry => shutdownedServers && shutdownedServers.servers.filter(e => e === entry).length > 0)) return;
+      setShutdownedServers(data.shutdownedServers);
     }
   });
 
   useEffect(() => {
-    if (!shutdownedServers || shutdownedServers.shutdownedServers.length === 0) return;
+    if (!shutdownedServers || shutdownedServers.servers.length === 0) return;
     setShutdownedServersMessages(prev => [shutdownedServers, ...prev]);
   }, [shutdownedServers, setShutdownedServersMessages]);
 
@@ -244,7 +241,7 @@ const App: React.FC = () => {
           </div>
         }
         {shutdownedServersMessages.length > 0 &&
-          <div className="mb-3 bg-blue-900 text-white w-[1000px] flex flex-col gap-3 p-3 text-center">
+          <div className="mb-3 bg-blue-900 rounded text-white w-[1000px] flex flex-col gap-3 p-3 text-center">
             <div className="font-bold text-lg">Shutdowned Servers:</div>
             {shutdownedServersMessages.map((e, index) => <ShutdownedServersMessage key={index} servers={e} setShutdownedServersMessages={setShutdownedServersMessages} />)}
           </div>
