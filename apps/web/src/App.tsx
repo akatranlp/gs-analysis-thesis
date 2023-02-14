@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useEffect, useCallback } from 'react'
+import React, { useState, createContext, useContext, useEffect, useCallback } from 'react'
 import {
   useQuery,
   useMutation,
@@ -177,40 +177,50 @@ const RconMessage: React.FC<{ message: RconMessage }> = ({ message }) => {
   )
 }
 
-const ShutdownedServersMessage: React.FC<{ servers: string[], setShutdownedServersMessages: (cb: ((prev: string[][]) => string[][])) => void }> =
+interface ShutdownedMessage {
+  shutdownedServers: string[]
+  shutDowntime: Date
+}
+
+const ShutdownedServersMessage: React.FC<{ servers: ShutdownedMessage, setShutdownedServersMessages: React.Dispatch<React.SetStateAction<ShutdownedMessage[]>> }> =
   ({ servers, setShutdownedServersMessages }) => {
     const removeMessage = () => {
       setShutdownedServersMessages(prev => prev.filter(e => e !== servers))
     }
 
     return (
-      <div className="relative p-3 flex justify-center bg-blue-700 gap-3">
-        {servers.map(server => <div key={server}>{server}</div>)}
-        <button className="absolute top-0 right-1 text-white" onClick={removeMessage}>&#x2715;</button>
+      <div className="relative p-3 flex justify-center text-white bg-blue-700 gap-3">
+        <div className="">{servers.shutDowntime.toLocaleString("de-DE")}</div>
+        {servers.shutdownedServers.map(server => <div key={server}>{server}</div>)}
+        <button className="absolute top-0 right-1" onClick={removeMessage}>&#x2715;</button>
       </div>
     )
   }
+
 
 const App: React.FC = () => {
   const { errors, rconMessages } = useContext(AppContext);
   const queryClient = useQueryClient();
 
-  const [shutdownedServers, setShutdownedServers] = useState<string[]>([]);
-  const [shutdownedServersMessages, setShutdownedServersMessages] = useState<string[][]>([]);
+  const [shutdownedServers, setShutdownedServers] = useState<ShutdownedMessage | undefined>(undefined);
+  const [shutdownedServersMessages, setShutdownedServersMessages] = useState<ShutdownedMessage[]>([]);
 
   const { data, isError, isLoading } = useQuery({
     queryKey: ["serverStatus"],
     queryFn: getServerStatus,
     refetchInterval: 5000,
     onSuccess: (data) => {
-      if (data.shutdownedServers.length == 0) setShutdownedServers([]);
-      if (data.shutdownedServers.every(entry => entry in shutdownedServers)) return;
-      setShutdownedServers(data.shutdownedServers);
+      if (data.shutdownedServers.length == 0) setShutdownedServers(undefined);
+      if (data.shutdownedServers.every(entry => shutdownedServers && entry in shutdownedServers.shutdownedServers)) return;
+      setShutdownedServers({
+        shutdownedServers: data.shutdownedServers,
+        shutDowntime: data.lastStatusUpdate
+      });
     }
   });
 
   useEffect(() => {
-    if (shutdownedServers.length === 0) return;
+    if (!shutdownedServers || shutdownedServers.shutdownedServers.length === 0) return;
     setShutdownedServersMessages(prev => [shutdownedServers, ...prev]);
   }, [shutdownedServers, setShutdownedServersMessages]);
 
