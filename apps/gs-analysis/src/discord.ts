@@ -48,15 +48,6 @@ const createCommands = (config: Config): Command[] => {
         }
     }, {
         data: new SlashCommandBuilder()
-            .setName("echo2")
-            .setDescription("Echoes your message back!"),
-        execute: async (interaction, _) => {
-            await interaction.reply({ fetchReply: true, content: "What you want to echoed?", ephemeral: true });
-            const message = await interaction.fetchReply();
-            await interaction.followUp({ content: message.content, ephemeral: true });
-        }
-    }, {
-        data: new SlashCommandBuilder()
             .setName("server")
             .setDescription("List or manage servers")
             .addSubcommandGroup(group => group
@@ -299,12 +290,12 @@ export const createDiscordBot = (app: Application) => {
 
     });
 
-    client.on("stop-if-needed", async (shutdownedServers: string[]) => {
+    client.on("stop-if-needed", async (shutdownedServers: { timestamp: Date, servers: string[] }) => {
         const channel = client.channels.cache.get(app.config.discord.channelId);
         if (!channel || channel.type != ChannelType.GuildText) return;
 
-        if (shutdownedServers.length > 0) {
-            const embed = createShutdownedServersEmbed(shutdownedServers);
+        if (shutdownedServers.servers.length > 0) {
+            const embed = createShutdownedServersEmbed(shutdownedServers.servers);
             await channel.send({ embeds: [embed] });
         }
     });

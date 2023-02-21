@@ -48,7 +48,7 @@ const configUpdateRouter = (fastify: FastifyInstance, app: Application) => {
             if (body.interval) app.config.app.interval = body.interval
             if (body.timeout) app.config.app.timeout = body.timeout
             if (body.stopIfNeeded) app.config.app.stopIfNeeded = body.stopIfNeeded
-            return {};
+            return true;
         })
     ));
 }
