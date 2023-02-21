@@ -13,7 +13,4 @@ Ein Computer ist entweder ein Client oder Server oder beides zugleich, denn was 
 
 Und da Server statt ein ganzer Computer eigentlich nur eine Anwendung ist kann man diese starten und stoppen. Das Wort Skalierung noch behandlen. Dies muss aber zumeist manuell passieren und hier kommt meine Bachelorarbeit ins spiel. Meine Bachelorarbeit kümmert sich darum Anwendungen nach bedarf zu skalieren. Dies Behandel ich in meiner Bachelorarbeit an dem Beispiel von Gamingservern.
 
-In [Abb1](#abb1) gibt es genug sachen zu sehen
-
-![Obsidian [@marijan_proxmox_2022]](./images/obsidian.png){ #abb1 height=2in }
 

@@ -2,7 +2,7 @@ $deckblatt_file = './Deckblatt.pdf'
 $raw_thesis_file = './Thesis.pdf'
 $thesis_file = './Bachelorthesis.pdf'
 
-$filenames = (Get-ChildItem -Path ./ -Filter *.md -Name -File | Where-Object{$_ -match '^\d\d-'})
+$filenames = (Get-ChildItem -Path ./ -Filter *.md -Name -File | Where-Object{$_ -Match '^\d\d-'})
  
 pandoc $filenames --defaults ./defaults.yaml
 

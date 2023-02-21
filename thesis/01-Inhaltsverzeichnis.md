@@ -4,15 +4,15 @@ papersize: a4
 documentclass: scrartcl
 linestretch: 1.15
 fontsize: 12pt
-toc-title: Inhaltsverzeichnis
 ---
+
+\addcontentsline{toc}{section}{Inhaltsverzeichnis}
+\renewcommand{\contentsname}{Inhaltsverzeichnis}
+\tableofcontents
 
 \newpage
 \renewcommand{\listfigurename}{Abbildungsverzeichnis}
+\renewcommand{\figurename}{Abb.}
 \listoffigures
-\addcontentsline{toc}{section}{Abbildungsverzeichnis}
+\addcontentsline{toc}{section}{\listfigurename}
 
-\newpage
-\renewcommand{\listtablename}{Tabellenverzeichnis}
-\listoftables
-\addcontentsline{toc}{section}{Tabellenverzeichnis}

@@ -2,8 +2,9 @@
 
 ```typescript
 const main = async () => {
-	const app = new Application();
-	await app.exec();
+	const config = await getConfig();
+	const app = new Application(config);
+	await app.start();
 }
 ```
 
@@ -14,6 +15,8 @@ Ausschnitte aus meinem Code. erläuterung des möglichen Plugin Struktur??
 Darstellen von Ablaufdiagram wie mein Programm abläuft.
 
 
+
+## SSH-Playercount-Client
 
 
 
