@@ -8,8 +8,7 @@ export const getConfig = async (path: string) => {
 const serverSchema = z.object({
     name: z.string(),
     ip: z.string().regex(/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/),
-    port: z.number().min(1).max(65535),
-    protocol: z.union([z.literal("tcp"), z.literal("udp")])
+    port: z.number().min(1).max(65535)
 });
 
 const configSchema = z.object({
@@ -27,4 +26,3 @@ const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>;
 export type Server = z.infer<typeof serverSchema>;
-export type Protocol = z.infer<typeof serverSchema.shape.protocol>

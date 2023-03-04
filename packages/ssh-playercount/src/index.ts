@@ -31,16 +31,13 @@ export class SSHClient {
     // 15:44:18.607622 IP 192.168.10.54.25565 > 192.168.20.10.56630: Flags [P.], seq 97377:97389, ack 460, win 501, length 12
     // 15:44:18.607638 IP 192.168.20.10.56630 > 192.168.10.54.25565: Flags [.], ack 97335, win 1025, length 0
 
-    const rawData = response.stdout;
+    const map: Record<string, { serverPacketNumber: number, clientPacketNumber: number }> = {}
 
-    const data = rawData.split("\n").map(str => {
+    response.stdout.split("\n").map(str => {
       const vec = str.split(" ");
       if (vec.length < 5) return { from: "", to: "" }
       return { from: vec[2], to: vec[4].slice(0, -1) }
-    });
-
-    const map: Record<string, { serverPacketNumber: number, clientPacketNumber: number }> = {}
-    for (const { from, to } of data) {
+    }).forEach(({ from, to }) => {
       if (from === `${this.sshOptions.host}.${this.serverOptions.port}`) {
         if (!map[to]) {
           map[to] = { serverPacketNumber: 0, clientPacketNumber: 0 }
@@ -52,7 +49,7 @@ export class SSHClient {
         }
         map[from].clientPacketNumber++;
       }
-    }
+    });
 
     this.client.execCommand(`sudo tcpdump -n -i ${this.serverOptions.interface} port ${this.serverOptions.port} > /tmp/${this.serverOptions.port}`);
     return Object.values(map).filter(entry => entry.serverPacketNumber >= 5 && entry.clientPacketNumber >= 5).length;

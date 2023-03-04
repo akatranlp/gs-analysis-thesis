@@ -1,5 +1,0 @@
-\newpage
-# Literaturverzeichnis {-}
-
-::: {#refs}
-:::

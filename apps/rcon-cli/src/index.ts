@@ -1,48 +1,39 @@
-import { RconClient, RconClientOptions } from "rcon";
-import { SSHClient } from "ssh-playercount";
 import { createLogger } from "logger";
+import PromiseSocket from "promise-socket";
 import { delay } from "utils";
+import { createRCONMessageBuffer, readRCONMessageBuffer } from "./rconClient";
+
+
 
 const log = createLogger("Main");
 
 const main = async () => {
-    const rcon = new RconClient({ host: "192.168.10.12", port: 27016, password: "petersenhecker" });
-    await rcon.connect();
+    const promiseSocket = new PromiseSocket();
+    //await promiseSocket.connect(27015, "192.168.10.54"); // tf2
+    await promiseSocket.connect(25575, "192.168.10.54"); // mc
+    //await promiseSocket.connect(27016, "192.168.10.12"); // conan
 
-    const response = await rcon.sendCommand("listplayers");
-    log(response);
-}
+    console.log("Send auth Package with ID 500!")
+    await promiseSocket.write(createRCONMessageBuffer({ id: 500, type: 3, body: "petersenhecker" }));
 
-const main2 = async () => {
-    //const ssh = new SSHClient({ host: "192.168.10.54", username: "fabian", password: "Guerrocombatre01" }, { port: 25565, interface: "enp3s0" });
-    const ssh = new SSHClient({ host: "192.168.10.54", username: "fabian", password: "Guerrocombatre01" }, { port: 27015, interface: "enp3s0" });
-    await ssh.connect();
-
-    await ssh.getPlayerCount();
-    await delay(2000);
-    const playerCount = await ssh.getPlayerCount();
-    await ssh.disconnect();
-
-    log(playerCount);
-}
-
-const test = async () => {
-    await delay(2000)
-    return 1
-}
-
-const main3 = async () => {
-    const test2 = {
-        test: test()
+    for await (const response of promiseSocket) {
+        console.log("Received Package from Conan: ")
+        const paket = readRCONMessageBuffer(response as Buffer)
+        console.log(paket);
+        if (paket.type === 2) break;
     }
 
-    const promises: Promise<Record<string, number>>[] = []
-    for (const [key, value] of Object.entries(test2)) {
-        promises.push(new Promise(async res => res({ [key]: await value })))
-    }
 
-    const values = await Promise.all(promises);
-    console.log(values);
+    console.log("Send Command Package with ID 7000!")
+    await promiseSocket.write(createRCONMessageBuffer({ id: 7000, type: 2, body: "help" }));
+
+    let response = await promiseSocket.read()
+    console.log(readRCONMessageBuffer(response as Buffer))
+    await delay(10)
+    await promiseSocket.write(createRCONMessageBuffer({ id: 1000, type: 2, body: "list" }));
+    response = await promiseSocket.read()
+    console.log(readRCONMessageBuffer(response as Buffer))
 }
 
-main3();
+
+main();

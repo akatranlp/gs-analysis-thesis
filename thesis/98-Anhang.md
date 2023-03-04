@@ -1,8 +1,15 @@
 \newpage
 # Anhang {-}
 
-\hypertarget{anhang01}{
+\hypertarget{class-diagram}{
 }
-\captionof{table}{Testaufbau}
+\captionof{table}{Klassen Diagramm}
 
-![Testaufbau](./images/Testaufbau.png)\
+![Testaufbau](attachement/class-diagram.png)\
+
+\newpage
+\hypertarget{sequence-diagram}{
+}
+\captionof{table}{Sequenz Diagramm}
+
+![Testaufbau](attachement/sequence-diagram.png)\

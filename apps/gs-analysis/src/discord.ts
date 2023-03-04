@@ -24,30 +24,6 @@ interface Command {
 const createCommands = (config: Config): Command[] => {
     return [{
         data: new SlashCommandBuilder()
-            .setName("ping")
-            .setDescription("Replies with Pong!"),
-        execute: async (interaction, _) => {
-            await interaction.reply("Pong!");
-        }
-    }, {
-        data: new SlashCommandBuilder()
-            .setName("echo")
-            .setDescription("Echoes your message back!")
-            .addStringOption(option => option
-                .setName("input")
-                .setDescription("The input that is echoed back!")
-                .setRequired(true)
-            ).addBooleanOption(option => option
-                .setName("ephemeral")
-                .setDescription("Message is ephemeral")
-                .setRequired(true)) as SlashCommandBuilder,
-        execute: async (interaction, _) => {
-            const input = interaction.options.getString("input", true);
-            const ephemeral = interaction.options.getBoolean("ephemeral", true);
-            await interaction.reply({ content: input, ephemeral });
-        }
-    }, {
-        data: new SlashCommandBuilder()
             .setName("server")
             .setDescription("List or manage servers")
             .addSubcommandGroup(group => group

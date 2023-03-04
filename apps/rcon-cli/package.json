@@ -13,9 +13,11 @@
     },
     "dependencies": {
         "@types/node": "^18.11.17",
-        "ssh-playercount": "*",
+        "dockerode": "^3.3.4",
+        "logger": "*",
+        "promise-socket": "^7.0.0",
         "rcon": "*",
-        "logger": "*"
+        "ssh-playercount": "*"
     },
     "devDependencies": {
         "tsconfig": "*",

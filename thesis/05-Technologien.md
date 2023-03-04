@@ -89,23 +89,35 @@ Durch die Typsicherheit werden Bugs die sonst erst zur Laufzeit auftreten würde
 
 ## Proxmox und VMs
 
+Eine virtuelle Maschine ist ein virtueller computer die mithilfe von Software, einem so geannnten Hypervisor, auf einer host maschine betrieben wird. Hierzu werden virtuelle Komponenten durch den Hypervisor emuliert, wie CPU, RAM, Festplattenspeicher usw. Die Ressourcen dieser Komponenten werden je nach Hypervisortyp entweder direkt von der Hardware genommen (Typ 1) oder vom Hostbetriebssystem (Typ 2). [@noauthor_what_nodate-1]
+
 Proxmox ist ein Open-Source Typ1-Hypervisor. Welcher mittels Qemu virtuelle Maschinen bereitstellen kann. Zsätzlich besteht die Möglichkeit LXC Container direkt über Proxmox zu erstellen und zu verwalten. Qemu nutzt widerum das im Kernel integrierte KVM Modul wodurch die virtuellen Maschinen ihre Ressourcen direkt von der Hardware erhalten können und nichts emuliert werden muss. [@noauthor_proxmox_nodate]
 
-virtuelle Maschinen haben abseits von Containern ein komplett eigenes Betriebssystem inklusive Kernel und beziehen ihre Ressourcen direkt von der Hardware selbst. (nicht ganz korrekt muss noch umgeschieben werden)
+Proxmox und VMs werden im Testaufbau genutzt. Auf diesen wird jeweils Docker installiert und über Docker dann die Gamingserver gehostet.
 
-Proxmox und VMs werden im Testaufbau genutzt um die Gamingserver über Docker zu hosten. Sie stellen eine Mögliche Konfiguration dar.
 
 ## Gamingserver
 
-Da die Bachelorarbeit sich an dem Beispiel von Gamingservern orientiert wird hier erklärt was ein Gamingserver überhaupt ist.
+Ein Gamingserver ist eine Anwendung die auf einem Server läuft und die Zentrale Authorität die den derzeitigen Stand in einem Multiplayer bestimmt. Game clients senden über das Internet Packete mit Informationen über Updates zum Server, wie z.B. bewegen und springen. Der Server verarbeitet diese und sendet bestimmte Informationen zurück an den Client.
+[@noauthor_what_nodate-2]
 
-Ein Gamingserver ist eine Anwendung die auf einem Server läuft und über das Internet erreichbar ist. Auf Ihm können sich die GameClients des dazugehörigen Spiels verbinden und auf eine Onlinefunktionalität zugreifen.
+Es gibt verschiedene Arten von Gameservern die für unterschiedliche Anzahl von Spielern und Arten von Games genutzt werden.
 
-Hierbei gibt es grob zwei Arten von Gamingservern, vom Entwickler des Games bereitgestellte Server auf denen sich alle Spieler verbinden und somit vom Hersteller selbst die Einstellungen der Server vorgenommen werden. 
+### Peer-to-Peer Server
 
-Und die zweite Möglichkeit dedizierte Server die man selber hosten kann. Womit man die Server selbst nach belieben konfigurieren kann und z.B. durch White- oder Blacklists entschieden wird wer sich auf diesen Server verbinden darf oder nicht. Dazu kann sich der Spieler selbst dann aussuchen auf welchen Server er sich verbinden möchte.
+Das Spiel wählt einen Client aus der dann den Gameserver im Hintergrund startet und alle Clients inklusive dem der den Server gestartet hat werden dann zu diesem Server verbunden. Diese Server sind nur für Spiele mit wenigen Spielern gleichzeitig gedacht und bei denen es sich um ein Spiel in unterschiedlichen unabhägig voneinander laufen Runden. [@noauthor_what_nodate-2]
 
-In dieser Thesis behandlen wir natürlich die dedizierten selbst gehosteten Server, da wir nur diese Konfigurieren und analysieren können und demnach auch skalieren können.
+
+### Dedicated servers
+
+Dedizierte Server sind Server die entweder vom Spielehersteller betrieben werden oder zu freien Verfügung auch Zuhause oder über andere Dienstleister gehostet werden können.
+
+Server die vom Hersteller direkt betrieben werden, sind meist 24/7 eingeschaltet und stehen allen Spielern offen zur Verfügung, um am Mehrspieler Teil des Spiels teilzunehmen.
+[@noauthor_what_nodate-2]
+
+Server die von einem selbst gehostet werden beiten die Möglichkeit zur freien Konfiguration, Installationen von Mods und schützen des Zugans durch Passwort, White- oder Blacklist. Hier kann meist im Client des jeweiligen Spiels entschieden werden, zu welchem Server man sich verbinden möchte. 
+
+In dieser Thesis behandlen wir die dedizierten selbst gehosteten Server, da wir nur diese Konfigurieren und analysieren können und demnach auch skalieren können.
 
 Wir gucken uns 4 verschiedene Gamingserver an zu den Spielen:
 
@@ -120,4 +132,4 @@ Conan-Exiles und Satusfactory sind in der Unreal-Engine 4 erstellt worden.
 
 TF2 in der Source-Engine und Minecraft in einer eigenen Enigne geschrieben in Java.
 
-Inwiefern hier eine Allgemeine Lösung gefunden wird alle mit einem Programm zu überprüfen sehen wir im nächsten Abschnitt der Recherche.
+Inwiefern hier eine Allgemeine Lösung gefunden wird alle mit einem Programm zu überprüfen sehen wir im nächsten Abschnitt der [Recherche](#recherche).

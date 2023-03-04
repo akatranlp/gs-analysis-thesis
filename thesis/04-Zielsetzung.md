@@ -1,8 +1,8 @@
 # Zielsetzung
 
-Ziele auf die am Ende in der Evaluierung wieder zurückgekommen werden muss.
+Folgende Ziele werden für diese Bachelorthesis definiert die nach der Recherche im Bereich der [Evaluierung](evaluierung) wieder aufgenommen werden.
 
-Ein Konzept und daraus einen Prototyp entwickeln mit dem man Anwendungen 
+Es soll ein Konzept und daraus ein Prototyp erstellt werden mit dem Anwendungen bedarfsbedingt skaliert werden können.
 
 Die Betriebszeit des Computers soll auf die Zeit des Bedarfs gesenkt werden
 

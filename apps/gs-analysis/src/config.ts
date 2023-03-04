@@ -22,7 +22,7 @@ export const configParser = z.object({
         port: z.number().min(0).max(65535).default(process.env.API_PORT ? Number(process.env.API_PORT) : 3000),
     }).default({}),
     app: z.object({
-        stopIfNeeded: z.boolean().default(process.env.APP_STOPIFNEEDED ? false : process.env.APP_STOPIFNEEDED === "true"),
+        stopIfNeeded: z.boolean().default(process.env.APP_STOPIFNEEDED ? process.env.APP_STOPIFNEEDED === "true" : false),
         timeout: z.number().min(5).max(60).default(process.env.APP_TIMEOUT ? Number(process.env.APP_TIMEOUT) : 5),
         interval: z.number().min(0.1).max(5).default(process.env.APP_INTERVAL ? Number(process.env.APP_INTERVAL) : 0.5),
     }).default({}),
@@ -32,5 +32,5 @@ export const configParser = z.object({
 export type Config = z.infer<typeof configParser>
 
 export const loadAndParseConfig = async () => {
-    return configParser.parseAsync(JSON.parse(await fs.readFile(process.env.CONFIG_FILE || "./config.json", "utf8")));
+    return configParser.parseAsync(JSON.parse(await fs.readFile(process.env.CONFIG_FILE ?? "./config.json", "utf8")));
 }

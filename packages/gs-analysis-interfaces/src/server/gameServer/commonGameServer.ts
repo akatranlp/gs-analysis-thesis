@@ -13,8 +13,7 @@ export const commonGameServerInfoValidator = gameServerInfoValidator
     .extend({
         checkType: z.literal("common"),
         hostInterface: z.string(),
-        gamePort: z.number().min(0).max(65535),
-        protocol: z.enum(["tcp", "udp"]),
+        gamePort: z.number().min(0).max(65535)
     });
 
 export type CommonGameServerInfo = z.infer<typeof commonGameServerInfoValidator>
