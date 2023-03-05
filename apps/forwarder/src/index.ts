@@ -1,5 +1,5 @@
 import { createLogger } from "logger";
-import { createTCPForwarder, createUDPForwarder } from "./createProxy";
+import { createTCPForwarder, createUDPForwarder } from "./createForwarder";
 
 const log = createLogger("Main");
 

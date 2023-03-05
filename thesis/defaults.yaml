@@ -7,4 +7,4 @@ citeproc: true
 number-sections: true
 metadata:
   bibliography: refs.bib
-  # csl: https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl
+  csl: https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl

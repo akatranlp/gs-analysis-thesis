@@ -9,7 +9,7 @@ Der Prototyp besteht aus mehreren Teilen, die zum Teil miteinander verbunden sin
 
 ## Config Parsing
 
-Mithilfe des Packages "zod" (https://www.npmjs.com/package/zod) wird ein Konfigurationsschema definiert. Mit diesem Schema lässt sich ein beliebiges Javascript Objekt überprüfen ob es diesem Schema entspricht und liefert einen Fehler zurück wenn nicht. Um die Konfiguration auch über Umgebungsvariablen zu ermöglichen, sind diese als Standard-Werte des Schemas angegeben (siehe [Abb. 3](#config-parser)).
+Mithilfe des Packages zod ^[https://www.npmjs.com/package/zod] wird ein Konfigurationsschema definiert. Mit diesem Schema lässt sich ein beliebiges Javascript Objekt überprüfen ob es diesem Schema entspricht und liefert einen Fehler zurück wenn nicht. Um die Konfiguration auch über Umgebungsvariablen zu ermöglichen, sind diese als Standard-Werte des Schemas angegeben (siehe [Abb. 3](#config-parser)).
 
 ![Konfigurations-Schema-ausschnitt](./images/config-parser.png){ #config-parser }
 
@@ -81,7 +81,7 @@ somit wird der Port des games abgehört nach packages und alle Pakete in die Dat
 
 Nun zum start der Funktion. tcpdump wird gestoppt und die datei getoucht damit sie auf jeden Fall existiert. Dann wird die Datei ausgelesen und der Inhalt verarbeitet.
 
-Aus dem Schema von tcpdump [Abb. 12](#tcpdump-schema) werden die IP-Adressen inklusive Ports entnommen und als from und to gespeichert. Dann wird analysiert ob das Paket an den Server oder vom Server geschickt wurde und gezählt welcher Client beteiligt war. Zum Schluss wird diese Liste gefiltert und nur clients in betracht gezogen die mehr als 5 Pakete an den Server geschickt und 5 Pakete vom Server bekommen haben. Die Länge dieser Liste ist die Anzahl der Clients die aktuell auf dem Server sind.
+Aus dem Schema von tcpdump [Abb. 12](#tcpdump-tcp) werden die IP-Adressen inklusive Ports entnommen und als from und to gespeichert. Dann wird analysiert ob das Paket an den Server oder vom Server geschickt wurde und gezählt welcher Client beteiligt war. Zum Schluss wird diese Liste gefiltert und nur clients in betracht gezogen die mehr als 5 Pakete an den Server geschickt und 5 Pakete vom Server bekommen haben. Die Länge dieser Liste ist die Anzahl der Clients die aktuell auf dem Server sind.
 
 ## RCON-Client
 

@@ -2,22 +2,15 @@ const playerCountCommands: Record<string, { command: string, outputConverter: (d
     mc: {
         command: "list",
         outputConverter: (data) => {
-            const value = data.match(/\d/)?.[0]
+            const value = data.match(/\d+/)?.[0]
             if (!value) throw new Error("outputValue not defined")
             return parseInt(value)
         }
     },
-    ttt: {
-        command: "ttt_print_playercount",
-        outputConverter: (data) => {
-            console.log(data)
-            return 0
-        },
-    },
     tf2: {
         command: "users",
         outputConverter: (data) => {
-            const value = data.split("\n").at(-2)
+            const value = data.split("\n").at(-2)?.match(/\d+/)?.[0]
             if (!value) throw new Error("outputValue not defined")
             return parseInt(value)
         }

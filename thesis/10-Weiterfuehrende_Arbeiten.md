@@ -5,3 +5,8 @@ Hier wird erläutert welche weiteren Arbeiten vorgenommen werden können, die es
 - Weiterentwicklung der Software durch KI auf Basis der bereits gesammelten Daten.
 
 Einführen einer Client-Server struktur in der auf jedem Server ein client installiert der sich dann z.b. über websockets verbindet und darüber commands entgegen nimmt. Somit werden auf dem Server keine Credentials mehr der Clients gespeichert und erhöht somit die Sicherheit falls der Server kompromitiert wird.
+
+Tests durchführen wie hoch der Unterschied der Latenz ist, wenn der TCP oder UDP Forwarder verwendet wird. Dahingehend einen Prototyp mit Verwendung der Forwarder implementieren.
+
+
+
