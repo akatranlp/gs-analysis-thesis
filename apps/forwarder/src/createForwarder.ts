@@ -2,21 +2,25 @@ import dgram from "dgram";
 import net from "net";
 import { createLogger } from "logger";
 
-const udpLog = createLogger("UDPProxy");
-const tcpLog = createLogger("TCPProxy");
+interface ProxyOptions {
+    name: string
+    port: number
+    serverAddress: string
+    serverPort: number
+}
 
-export const createUDPForwarder = ({ port, serverPort, serverAdress }
-    : { port: number, serverPort: number, serverAdress: string }) => {
+export const createUDPForwarder = ({ name, port, serverAddress, serverPort }: ProxyOptions) => {
+    const log = createLogger(`UDPForward ${name}`);
     const activeConnections: Record<string, { socket: dgram.Socket, timeoutDate: Date } | undefined> = {};
     const socket = dgram.createSocket({ type: "udp4" });
 
     socket.on("message", (data, remoteInfo) => {
         const key = `${remoteInfo.address}:${remoteInfo.port}`
-        //udpLog(remoteInfo, data.toString("utf-8"))
+        //log(remoteInfo, data.toString("utf-8"))
         if (!activeConnections[key]) {
             const innerSocket = dgram.createSocket({ type: "udp4" })
             innerSocket.on("message", (data) => {
-                // udpLog("inner", remoteInfo, data.toString("utf-8"))
+                //log("inner", remoteInfo, data.toString("utf-8"))
                 socket.send(data, remoteInfo.port, remoteInfo.address);
                 activeConnections[key]!.timeoutDate = new Date();
             })
@@ -26,12 +30,12 @@ export const createUDPForwarder = ({ port, serverPort, serverAdress }
             }
         }
 
-        activeConnections[key]!.socket.send(data, serverPort, serverAdress);
+        activeConnections[key]!.socket.send(data, serverPort, serverAddress);
         activeConnections[key]!.timeoutDate = new Date();
     });
 
     socket.bind(port, "0.0.0.0", () => {
-        udpLog(`Listen on port ${port}`)
+        log(`from ${port} to ${serverAddress}:${serverPort}`);
     });
 
     setInterval(() => {
@@ -44,20 +48,22 @@ export const createUDPForwarder = ({ port, serverPort, serverAdress }
         });
     }, 1000);
 
-    return () => Object.values(activeConnections).filter(Boolean).length
+    return {
+        getConnectionCount: () => Object.values(activeConnections).filter(Boolean).length
+    }
 }
 
-export const createTCPForwarder = ({ port, serverPort, serverAdress }
-    : { port: number, serverPort: number, serverAdress: string }) => {
+export const createTCPForwarder = ({ name, port, serverAddress, serverPort }: ProxyOptions) => {
+    const log = createLogger(`TCPForward ${name}`);
     const activeConnections: Record<string, net.Socket | undefined> = {};
     const server = net.createServer((socket => {
         const key = `${socket.remoteAddress!}:${socket.remotePort!}`
         socket.on("data", (data) => {
-            //tcpLog(socket.remotePort, socket.remoteAddress, data.toString("utf-8"));
+            //log(socket.remotePort, socket.remoteAddress, data.toString("utf-8"));
             if (!activeConnections[key]) {
-                const innerSocket = net.connect(serverPort, serverAdress);
+                const innerSocket = net.connect(serverPort, serverAddress);
                 innerSocket.on("data", (data) => {
-                    //tcpLog("inner", socket.remotePort, socket.remoteAddress, data.toString("utf-8"))
+                    //log("inner", socket.remotePort, socket.remoteAddress, data.toString("utf-8"))
                     socket.write(data);
                 }).on("close", () => {
                     if (!socket.closed) socket.end();
@@ -74,8 +80,10 @@ export const createTCPForwarder = ({ port, serverPort, serverAdress }
     }));
 
     server.listen(port, "0.0.0.0", () => {
-        tcpLog(`Server is listening on port ${port}`)
-    })
+        log(`from ${port} to ${serverAddress}:${serverPort}`);
+    });
 
-    return () => Object.values(activeConnections).filter(Boolean).length
+    return {
+        getConnectionCount: () => Object.values(activeConnections).filter(Boolean).length
+    }
 }
