@@ -9,4 +9,4 @@ Alle Geräte befinden sich im selben Subnetz hinter einem PfSense Router. Dieser
 Die Daten der Messungen werden in der InfluxDB gespeichert und mittels Grafana die Graphen erstellt.
 
 
-![Testaufbau](./images/Testaufbau.png){ #id }
+![Testaufbau](./images/Testaufbau.png){ #id width=1500px  }

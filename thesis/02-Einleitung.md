@@ -1,20 +1,17 @@
 \newpage
 # Einleitung
 
-Die Welt der Computer 
-Ausschreiben um was meine Bachelorarbeit geht mit dem groben bezug darauf, dass Die Welt ohne Computer komplett anders werde. Anschneiden was das Internet ist ein Zusammenschluss von Computern über ein Netzwerk. 
+Das Internet hat die Welt komplett verändert.
 
-Skalierung von Anwendungen bezieht sich auf Server-Anwendungen.
+Es hat die Art wie wir kommunizieren so revolutioniert, das dies nun das präferierte Medium ist wie wir tagtäglich kommunizieren. Bei fast jeden dingen die wir huete erledigen nutzen wir auf irgendeine Weise das Internet. Die Weise wie wir an Informationen kommen, uns mit Freunden unterhalten und unsere Zeit vertreiben können wurden so auf den Kopf gestellt, dass wir uns gar nicht mehr an die Zeit vor dem Internet erinnern können. [@dentzel_how_2013]
 
-Was für Anwendungen gibt es denn. Client - Server [@noauthor_influxdb_nodate]
+Doch woraus besteht das Inernet:
 
-## Definition Client - Server
-Ein Computer ist entweder ein Client oder Server oder beides zugleich, denn was unterscheidet einen Client und einen Server. Woher kommen die Worte Client und Server (aus dem Restaurantbetrieb zum beispiel, Client (Gast) und Server (Kellner)) [@marijan_proxmox_2022]. Der Client fragt z.b. Nach Essen und der Kellner serviert sie ihm. Request und Response. Und im groben funktioniert es heute immernoch genauso Der Client (eine Anwendung) fragt einen Server nach einer Dienstleistung (Anwednung) und erhält dann eine Antwort.
+Das Internet besteht aus einer Vielzahl von Netzwerkkomponenten wie Router und Switches und aus den Komponenten die über diese Komponenten kommunizieren: Clients und Server. Alle diese Geräte sind durch ein Netzwerk von Kabeln oder anderen Verbindungsmöglichkeiten miteinandern verbunden und ergeben ein weltumfassended Netzwerk, welches wir das Internet nennen.
+[@brandt_wie_2021]
 
-Ein großer Teil der Internetaktivität sind computerspiele auf Gameservern.
+## Client - Server
 
+Ein Computer ist entweder ein Client oder Server oder beides zugleich, denn was unterscheidet einen Client und einen Server. Woher kommen die Worte Client und Server (aus dem Restaurantbetrieb zum beispiel, Client (Gast) und Server (Kellner)). Der Client fragt z.b. Nach Essen und der Kellner serviert sie ihm. Request und Response. Und im groben funktioniert es heute immernoch genauso Der Client (eine Anwendung) fragt einen Server nach einer Dienstleistung (Anwednung) und erhält dann eine Antwort.[@fasler_what_2022]
 
-
-Und da Server statt ein ganzer Computer eigentlich nur eine Anwendung ist kann man diese starten und stoppen. Das Wort Skalierung noch behandlen. Dies muss aber zumeist manuell passieren und hier kommt meine Bachelorarbeit ins spiel. Meine Bachelorarbeit kümmert sich darum Anwendungen nach bedarf zu skalieren. Dies Behandel ich in meiner Bachelorarbeit an dem Beispiel von Gamingservern.
-
-
+Zudem gibt es die sogannte Client-Server Architektur die in den meisten Bereichen der Softwaretechnologien vertreten sind. Um zum Beispiel einem Client keinen direkten Zugriff auf die Datenbank zu erlauben, lassen wir den Client mit einem Server interagieren der nur bestimmte Funktionen an den Client weitergibt und durch diese Funktionen Daten in der Datenbank ausliest, verändert, hinzufügt oder löscht. [@sulyman_client-server_2014]

@@ -41,10 +41,16 @@ Bei Team Fortress 2 kann die Spielwelt im Spiel nicht verändert werden und es g
 
 Der Bedarf wird in dieser Arbeit wie folgt definiert. Wenn ein Spieler auf dem Server spielen möchte gibt es einen Bedarf, somit soll der Server hochskaliert werden. Wenn keiner mehr auf dem Server spielen möchte sinkt der Bedarf und der Server soll runterskaliert werden.
 
+Um zu wissen wann ein Spieler auf dem Server spielen möchte und somit den Server hochzuskalieren, sollte dem Spieler eine Möglichkeit gegeben werden, den Server selbst zu starten.
+Dies kann zum Beispiel über eine Webseite oder einen Discord-Bot ermöglicht werden.
 
-Wie wird der Bedarf zum starten gemessen? in diesem Fall gibt es verschiedene Möglichkeiten. Hier wurde sich für die manuelle Methode entschieden über ein Interface das jeder User der Community benutzen kann....
+#### Wieso ein Discord-Bot? {-}
 
-wir wird gemessen das kein Spieler mehr spielen möchte. Hierzu sollte der Server nach einer bestimmten Zeit wenn kein Spieler mehr auf dem Server ist als inaktiv gewertet werden und daraufhin dann gestoppt werden....
+Discord ist eine Social-Media Platform, die in den letzten Jahren immer mehr User erhalten hat, vorallem im Gamingbereich und Communities. [@chiu_discord_nodate]
+
+Aufgrund dieser Erkenntnis und weil unsere Community auch Discord benutzt eignet sich ein Discord-Bot als Interface für die Applikation um den Bedarf der Spieler zu ermitteln indem sie den Server hierüber starten können.
+
+Wie wird gemessen das kein Spieler mehr spielen möchte. Hierzu sollte der Server nach einer bestimmten Zeit wenn kein Spieler mehr auf dem Server ist als inaktiv gewertet werden und daraufhin dann gestoppt werden. ...
 
 Für weitere Instanzen müssen bestimmte Schwellenwerte der Spielerzahlen erreicht werden, damit sich der Bedarf erhöht.
 
@@ -210,7 +216,7 @@ Das Ergebnis des Befehls "list" in Minecraft leifert folgendes Ergebnis:
 There are 1 of a max of 20 players online: Akatran
 ```
 
-Somit benötigen wir nur die erste Zahl im String, welches wir mithilfe von Regex "\d+" recht einfach erhalten.
+Somit benötigen wir nur die erste Zahl im String, welches wir mithilfe von Regex "\\d+" recht einfach erhalten.
 
 Im Falle von TF2 nehmen wir die letzte Zeile und benutzten auch hier Regex um die erste zahl zu erhalten.
 
@@ -230,6 +236,23 @@ Idx | Char Name | Player name | User ID | Platform ID | Platform Name
 Für andere Server gibt es wiederum andere Methoden die hier aber nicht benannt werden, da sie nicht Teil dieser Thesis sind.
 
 Das Rcon Protokoll wird in der Implementation selbst implementiert und dort werden noch einige Besonderheiten aufgezeigt, die so nicht in der Spezifikation von Valve beschrieben sind.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Konzept
 

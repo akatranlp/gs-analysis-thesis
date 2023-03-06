@@ -1,5 +1,7 @@
 # Weiterführende Arbeiten
 
+Der Bedarf Skalierung kann auch noch über andere Parameter entschieden werden, wie CPU-Auslastung, Arbeitsspeicherverbrauch oder Festplattenauslastung. [@amin_calculating_2019]
+
 Hier wird erläutert welche weiteren Arbeiten vorgenommen werden können, die es leider nicht in den Zeitrahmen der Bachelorarbeit geschaft haben:
 
 - Weiterentwicklung der Software durch KI auf Basis der bereits gesammelten Daten.
