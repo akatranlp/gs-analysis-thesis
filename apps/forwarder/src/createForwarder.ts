@@ -15,18 +15,18 @@ export const createUDPForwarder = ({ name, port, serverAddress, serverPort }: Pr
     const socket = dgram.createSocket({ type: "udp4" });
 
     socket.on("message", (data, remoteInfo) => {
-        const clientAddress = `${remoteInfo.address}:${remoteInfo.port}`
-        //log(remoteInfo, data.toString("utf-8"))
+        const clientAddress = `${remoteInfo.address}:${remoteInfo.port}`;
+        //log(remoteInfo, data.toString("utf-8"));
         if (!activeConnections[clientAddress]) {
-            const innerSocket = dgram.createSocket({ type: "udp4" })
+            const innerSocket = dgram.createSocket({ type: "udp4" });
             innerSocket.on("message", (data) => {
-                //log("inner", remoteInfo, data.toString("utf-8"))
+                //log("inner", remoteInfo, data.toString("utf-8"));
                 socket.send(data, remoteInfo.port, remoteInfo.address);
                 activeConnections[clientAddress]!.timeoutDate = new Date();
             })
             activeConnections[clientAddress] = {
                 socket: innerSocket,
-                timeoutDate: new Date()
+                timeoutDate: new Date(),
             }
         }
 
@@ -56,18 +56,18 @@ export const createUDPForwarder = ({ name, port, serverAddress, serverPort }: Pr
 export const createTCPForwarder = ({ name, port, serverAddress, serverPort }: ProxyOptions) => {
     const log = createLogger(`TCPForward ${name}`);
     const activeConnections: Record<string, net.Socket | undefined> = {};
-    const server = net.createServer((socket => {
-        const clientAddress = `${socket.remoteAddress!}:${socket.remotePort!}`
+    const server = net.createServer((socket) => {
+        const clientAddress = `${socket.remoteAddress!}:${socket.remotePort!}`;
         socket.on("data", (data) => {
             //log(socket.remotePort, socket.remoteAddress, data.toString("utf-8"));
             if (!activeConnections[clientAddress]) {
                 const innerSocket = net.connect(serverPort, serverAddress);
                 innerSocket.on("data", (data) => {
-                    //log("inner", socket.remotePort, socket.remoteAddress, data.toString("utf-8"))
+                    //log("inner", socket.remotePort, socket.remoteAddress, data.toString("utf-8"));
                     socket.write(data);
                 }).on("close", () => {
                     if (!socket.closed) socket.end();
-                })
+                });
                 activeConnections[clientAddress] = innerSocket;
             }
             activeConnections[clientAddress]!.write(data);
@@ -77,7 +77,7 @@ export const createTCPForwarder = ({ name, port, serverAddress, serverPort }: Pr
             }
             activeConnections[clientAddress] = undefined;
         })
-    }));
+    });
 
     server.listen(port, "0.0.0.0", () => {
         log(`from ${port} to ${serverAddress}:${serverPort}`);
