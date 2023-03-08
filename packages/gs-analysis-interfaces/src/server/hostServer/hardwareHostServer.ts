@@ -43,6 +43,7 @@ export class HardwareHostServer extends HostServer {
         this.sshClient.dispose();
         await delay(12_000);
         this.givenServerStatus = null;
+        this.startedTime = undefined;
         return true;
     }
 }

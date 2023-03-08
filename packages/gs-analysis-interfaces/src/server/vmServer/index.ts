@@ -28,6 +28,7 @@ export const isVMServer = (server: Server): server is VMServer => {
 export class VMServer implements Server {
     dockerHost: DockerHost;
     givenServerStatus: "starting" | "stopping" | null = null;
+    private startedTime?: Date
     private children: GameServer[] = [];
 
     constructor(public info: VMServerInfo, public hostServer: HostServer) {
@@ -68,6 +69,7 @@ export class VMServer implements Server {
         if (isProxmoxHostServer(this.hostServer)) {
             const success = this.hostServer.shutdownVM(this.info.name);
             this.givenServerStatus = null;
+            this.startedTime = undefined;
             return success;
         }
         return false;
@@ -77,7 +79,7 @@ export class VMServer implements Server {
         const status = await this.getServerStatus(hostStatus);
         if (status !== "running") return this.statusInfo(hostStatus, timeout);
 
-        let isInactive = true;
+        let isInactive = this.startedTime ? (new Date().getTime() - this.startedTime.getTime()) > 1000 * 60 * timeout : true;
         let shutdownedServers: string[] = []
         const childrenInfo = (await Promise.all(this.children.map(child => child.stopIfNeeded(status, timeout))))
             .map(info => {
@@ -134,6 +136,7 @@ export class VMServer implements Server {
             if (!success) return false;
             await delay(30_000);
             this.givenServerStatus = null;
+            this.startedTime = new Date();
             return await this.getServerStatus("running") === "running"
         }
         return false;

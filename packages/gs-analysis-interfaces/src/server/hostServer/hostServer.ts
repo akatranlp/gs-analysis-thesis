@@ -27,7 +27,8 @@ export const isHostServer = (server: Server): server is HostServer => {
 }
 
 export class HostServer implements Server {
-    givenServerStatus: "starting" | "stopping" | null = null;
+    givenServerStatus: "starting" | "stopping" | null = null
+    protected startedTime?: Date
     private children: (GameServer | VMServer)[] = [];
 
     constructor(public info: HostServerInfo) { }
@@ -73,6 +74,7 @@ export class HostServer implements Server {
 
         await delay(60_000);
         this.givenServerStatus = null;
+        this.startedTime = new Date();
         return await this.getServerStatus() === "running"
     }
 
@@ -93,7 +95,7 @@ export class HostServer implements Server {
         const status = await this.getServerStatus();
         if (status !== "running") return this.statusInfo(timeout);
 
-        let isInactive = true;
+        let isInactive = this.startedTime ? (new Date().getTime() - this.startedTime.getTime()) > 1000 * 60 * timeout : true;
         let shutdownedServers: string[] = []
         const childrenInfo = (await Promise.all(this.children.map(child => child.stopIfNeeded(status, timeout))))
             .map(info => {

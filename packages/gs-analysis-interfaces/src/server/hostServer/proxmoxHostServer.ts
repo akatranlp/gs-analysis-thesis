@@ -44,6 +44,7 @@ export class ProxmoxHostServer extends HostServer {
                 command: "shutdown"
             });
             this.givenServerStatus = null;
+            this.startedTime = undefined;
             return true;
         } catch (err) {
             this.givenServerStatus = null;
