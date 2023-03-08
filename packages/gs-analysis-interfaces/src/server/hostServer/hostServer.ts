@@ -107,7 +107,7 @@ export class HostServer implements Server {
                 }
             });
 
-        if (isInactive) {
+        if (isInactive && this.info.shutdownIdNeeded) {
             const success = await this.stop();
             if (success) {
                 shutdownedServers.push(this.info.name)

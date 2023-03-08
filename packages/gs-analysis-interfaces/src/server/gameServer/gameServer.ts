@@ -42,7 +42,7 @@ export class GameServer implements Server {
     async stopIfNeeded(hostStatus: ServerStatus | null, timeout: number): Promise<StatusInfo> {
         const info = await this.statusInfo(hostStatus, timeout);
         if (info.status !== "running") return info;
-        if (!info.isInactive) return info;
+        if (!info.isInactive || !this.info.shutdownIdNeeded) return info;
 
         const success = await this.stop("running");
         if (!success) return info;

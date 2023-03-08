@@ -23,6 +23,7 @@
         {
             "name": "hw-host01",
             "type": "hw",
+            "stopIfNeeded": true,
             "ipAdress": "192.168.0.10",
             "username": "user",
             "password": "password",
@@ -31,6 +32,7 @@
         {
             "name": "vm-host01",
             "type": "vm",
+            "stopIfNeeded": true,
             "ipAdress": "192.168.0.50",
             "username": "user",
             "password": "password",
@@ -40,6 +42,7 @@
         {
             "name": "mc-vanilla",
             "type": "gs",
+            "stopIfNeeded": true,
             "gsType": "mc",
             "hosting": "docker",
             "hostServer": "vm-host01",
