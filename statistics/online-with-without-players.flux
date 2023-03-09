@@ -4,21 +4,34 @@ data = from(bucket: "gs3")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "onlineInactiveStatus")
   |> filter(fn: (r) => r["_field"] == "value")
-  |> filter(fn: (r) => r.name != "tf2-Inactive" and r.name != "tf2-Online" and r.name != "mc-vanilla2-Inactive" and r.name != "mc-vanilla2-Online")
+  |> filter(fn: (r) => 
+    r.name == "mc-vanilla-Inactive" or
+    r.name == "mc-vanilla-Online" or 
+    r.name == "conan-Inactive" or 
+    r.name == "conan-Online" or
+    r.name == "satis-Inactive" or 
+    r.name == "satis-Online"
+  )
   |> drop(columns: ["_start", "_stop", "_measurement", "_field"])
 
 playerCount = from(bucket: "gs3")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "playerCount")
   |> filter(fn: (r) => r["_field"] == "playerCount")
-  |> filter(fn: (r) => r.name != "tf2" and r.name != "mc-vanilla2")
+  |> filter(fn: (r) => 
+    r.name == "mc-vanilla" or
+    r.name == "conan" or 
+    r.name == "satis"
+  )
   |> drop(columns: ["_start", "_stop", "_measurement", "_field"])
 
-Inactive = data 
+Inactive = data
+  |> filter(fn: (r) => strings.hasSuffix(v: r.name, suffix: "-Inactive"))
   |> map(fn: (r) => ({r with inactive: if r._value == 0.0 then 0 else 1, name: strings.replace(v: r.name, t: "-Inactive", u: "", i: 1)}))
   |> drop(columns: ["_value"])
 
-Online = data 
+Online = data
+  |> filter(fn: (r) => strings.hasSuffix(v: r.name, suffix: "-Online"))
   |> map(fn: (r) => ({r with online: if r._value == 0.0 then 0 else 1, name: strings.replace(v: r.name, t: "-Online", u: "", i: 1)})) 
   |> drop(columns: ["_value"])
 
