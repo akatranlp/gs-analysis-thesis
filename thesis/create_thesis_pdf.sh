@@ -1,6 +1,6 @@
 THEME=$1
 
-if [ $THEME != "dark" ] && [ $THEME != "light" ]; then
+if [ "$THEME" != "dark" ] && [ "$THEME" != "light" ]; then
     echo "You must specify one of the themes light or dark"
     exit
 fi
