@@ -1,8 +1,17 @@
+if ($args[0] -ne "dark" -and $args[0] -ne "light") {
+    Write-Host "You must specify one of the themes light or dark"
+    Exit
+}
+
+$theme = $args[0]
+
 $deckblatt_file = './Deckblatt.pdf'
 $raw_thesis_file = './Thesis.pdf'
 $thesis_file = './Bachelorthesis.pdf'
 
 $filenames = (Get-ChildItem -Path ./ -Filter *.md -Name -File | Where-Object{$_ -Match '^\d\d-'})
+
+Get-ChildItem -Path ./ -Recurse -File | Where-Object{$_ -Match "^$($theme)-"} | ForEach-Object { Copy-Item $_.FullName -Force -Destination $_.FullName.Replace("$($theme)-", "")}
  
 pandoc $filenames --defaults ./defaults.yaml
 
