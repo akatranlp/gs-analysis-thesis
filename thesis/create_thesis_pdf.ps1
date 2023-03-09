@@ -1,9 +1,9 @@
-if ($args[0] -ne "dark" -and $args[0] -ne "light") {
+$theme = $args[0]
+
+if ($theme -ne "dark" -and $theme -ne "light") {
     Write-Host "You must specify one of the themes light or dark"
     Exit
 }
-
-$theme = $args[0]
 
 $deckblatt_file = './Deckblatt.pdf'
 $raw_thesis_file = './Thesis.pdf'
