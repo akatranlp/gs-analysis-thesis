@@ -2,13 +2,12 @@
 
 Der Bedarf Skalierung kann auch noch über andere Parameter entschieden werden, wie CPU-Auslastung, Arbeitsspeicherverbrauch oder Festplattenauslastung. [@amin_calculating_2019]
 
-Hier wird erläutert welche weiteren Arbeiten vorgenommen werden können, die es leider nicht in den Zeitrahmen der Bachelorarbeit geschaft haben:
+Eine Möglichkeit wäre, den Prototypen auf eine Client-Server Anwendung umzubauen. Hierzu sollte ein Client entwickelt werden, der sich z.B. über Websockets mit dem Server verbindet und über diese Verbindung immer den aktuellen Zustand meldet und Befehle vom Server entgegen nimmt. Gleichzeitig würde dies dazu führen das in der Konfiguration des Servers keine Nutzernamen und Passwörter der einzelnen Server mehr vorhanden sein müssen, weil der Client diese Aufgabe nun übernimmt.
 
-- Weiterentwicklung der Software durch KI auf Basis der bereits gesammelten Daten.
+Weiterhin sollte getestet werden ob der TCP- oder UDP-Forwarder eine valide Option der Verbindungsanalyse ist, indem zum Beispiel die Latenz und die Geschwindigkeit gemessen wird. Falls diese Testst zu einen zufriedenen Ergebnis führen, könnte der Prototyp dann mit dem Forwarder arbeiten und nicht mehr über die tcpdump Methode.
 
-Einführen einer Client-Server struktur in der auf jedem Server ein client installiert der sich dann z.b. über websockets verbindet und darüber commands entgegen nimmt. Somit werden auf dem Server keine Credentials mehr der Clients gespeichert und erhöht somit die Sicherheit falls der Server kompromitiert wird.
+Und um den Bogen zu einer allgemeinen Software für andere Anwendungen zu spannen, sollte getestet werden, ob diese Software sich auch für andere Bereiche ausßer dem Gamingbereich eignet und noch weiter verallgemeinern.
 
-Tests durchführen wie hoch der Unterschied der Latenz ist, wenn der TCP oder UDP Forwarder verwendet wird. Dahingehend einen Prototyp mit Verwendung der Forwarder implementieren.
 
 
 

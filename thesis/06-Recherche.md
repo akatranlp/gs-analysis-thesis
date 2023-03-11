@@ -1,25 +1,21 @@
+\newpage
 # Recherche
 
 ## Skalieren
 
 ### Definition
 
-Skalieren ist der Prozess zum Anpassen und Erweitern der aktuellen Server-Konfiguration um effektiver auf größer Anzahl von Anfragen und größerer Arbeitslast eingehen zu können.
-[@redswitches_server_2022]
+Skalieren ist der Prozess zum Anpassen und Erweitern der aktuellen Server-Konfiguration um effektiver auf eine erhöhte Anzahl von Anfragen und/oder erhöhter Arbeitslast eingehen zu können. [@redswitches_server_2022]
 
 Dabei gibt es zwei Arten von Skalierungen:
 
 #### Vertikale Skalierung
 
-Bei der vertikalen Skalierung, auch up/down scaling genannt, wird der aktuelle eingesetzte Server mit besserer Hardware ausgerüstet um somit die Performance und Effizenz dieses Servers zu verbessern. [@redswitches_server_2022]
+Bei der vertikalen Skalierung, auch up/down scaling genannt, wird der aktuelle eingesetzte Server mit besserer Hardware ausgerüstet um somit die Performance und Effizenz dieses Servers zu verbessern. [@redswitches_server_2022] Oder wenn der Arbeitsaufwand wieder geringer wird, wird die Hardware wieder abgerüstet. [@el-rewini_advanced_2005]
 
 #### Horizontale Skalierung
 
-Horizontal Skalieren, auch in/out scaling genannt, bedeutet den Arbeitsaufwand und die Anfragen auf mehrere Server zu verteilen [@redswitches_server_2022]
-
-#### Hoch und Runter Skalieren
-
-Skalieren geht aber nicht nur in die eine Richtung, es kann auch dazu kommen das die Server-Anfragen mit der Zeit immer weniger werden und somit Ressourcen nicht mehr benötigt werden. Beim vertikalen Skalieren kann man hierbei die Hardware wieder verkleinern. Und bei der vertikalen Skalierung werden Server heruntergefahren. [@el-rewini_advanced_2005]
+Horizontal Skalieren, auch in/out scaling genannt, bedeutet den Arbeitsaufwand und die Anfragen auf mehrere Server zu verteilen. [@redswitches_server_2022] Wenn die Arbeitslast wieder geringer wird, werden einzelne Server abgeschaltet oder für andere Zwecke genutzt. [@el-rewini_advanced_2005]
 
 
 ### Was heißt bedarfsbedingtes Skalieren?
@@ -29,13 +25,13 @@ Bedarfsbedingt besteht aus den Worten Bedarf und bedingt und bedeutet, dass je n
 
 ## Skalieren von dedizierten Gamingservern
 
-Die einfachste Skalierung von Gameservern wäre eingeschaltet und ausgeschaltet. Eine einzige Instanz die je nach Bedarf angeschaltet ist oder eben nicht. 
+Wie lässt sich Skalierung bei Gamingservern darstellen? Die simpelste Art wäre es eine einzige Instanz entweder einzuschalten oder auszuschalten.
 
-Bei höheren Skalierungen kommt es auf den jeweiligen Gameserver an, ob es Möglichkeiten gibt mehere Instanzen zu erstellen. Hierbei kommt Minecraft in den Sinn. Es werden Weltdaten im Filesystem der jeweiligen Instanz gespeichert, wodurch es ohne Modifikation des Servers keine Möglichkeit gibt zwei verschiedene Instanzen auf die gleichen Weltdaten zugreifen zu lassen. [@diaconu_manycraft_2013]
+Wenn man weiter als nur eine Instanz skalieren möchte, kommt es auf den jeweiligen Gameserver an, ob es Möglichkeiten gibt mehere Instanzen zu erstellen. Hierbei kommt Minecraft in den Sinn. Es werden Weltdaten im Filesystem der jeweiligen Instanz gespeichert, wodurch es ohne Modifikation des Servers keine Möglichkeit gibt zwei verschiedene Instanzen auf die gleichen Weltdaten zugreifen zu lassen. [@diaconu_manycraft_2013]
 
-Die gleichen Eigenschaften treffen auch bei Conan-Exiles und Satisfactory auf. Bei beiden Spielen kann die Spielwelt verändert werden, welche auch lokal auf der Festplatte gespeichert werden. 
+Die gleichen Eigenschaften treffen auch auf Conan-Exiles und Satisfactory zu. Bei beiden Spielen kann die Spielwelt verändert werden, welche auch lokal auf der Festplatte gespeichert wird. 
 
-Bei Team Fortress 2 kann die Spielwelt im Spiel nicht verändert werden und es gibt keinen Zustand der zwischen zwei Spielen auf dem dedizierten Server gespeichert wird. Somit kann eine weitere Instanz erstellt werden wenn der Arbeitsaufwand zu groß wird. [@noauthor_team_nodate]
+Bei Team Fortress 2 kann die Spielwelt im Spiel nicht verändert werden und es gibt keinen Zustand der zwischen zwei Spielen auf dem dedizierten Server gespeichert wird. Somit kann eine weitere Instanz erstellt werden wenn der Arbeitsaufwand für einen Server zu groß wird. [@noauthor_team_nodate]
 
 ### Was ist der Bedarf zum Skalieren?
 
@@ -48,9 +44,11 @@ Dies kann zum Beispiel über eine Webseite oder einen Discord-Bot ermöglicht we
 
 Discord ist eine Social-Media Platform, die in den letzten Jahren immer mehr User erhalten hat, vorallem im Gamingbereich und Communities. [@chiu_discord_nodate]
 
-Aufgrund dieser Erkenntnis und weil unsere Community auch Discord benutzt eignet sich ein Discord-Bot als Interface für die Applikation um den Bedarf der Spieler zu ermitteln indem sie den Server hierüber starten können.
+Aufgrund dieser Erkenntnis und weil unsere Community auch Discord benutzt, eignet sich ein Discord-Bot als Interface für die Applikation, um den Bedarf der Spieler zu ermitteln, indem sie den Server hierüber starten können.
 
-Wie wird gemessen das kein Spieler mehr spielen möchte. Hierzu sollte der Server nach einer bestimmten Zeit wenn kein Spieler mehr auf dem Server ist als inaktiv gewertet werden und daraufhin dann gestoppt werden. ...
+#### Runterskalieren {-}
+
+Wie wird gemessen das kein Spieler mehr spielen möchte. Hierzu sollte der Server nach einer bestimmten Zeit wenn kein Spieler mehr auf dem Server ist als inaktiv gewertet werden und daraufhin gestoppt werden. 
 
 Für weitere Instanzen müssen bestimmte Schwellenwerte der Spielerzahlen erreicht werden, damit sich der Bedarf erhöht.
 
@@ -62,11 +60,11 @@ In den folgenden Abschnitten werden verschiedene Methoden ermitteln wie die Anza
 
 ## Netzwerkaktivität
 
-Eine Möglichkeit die Anzahl der Spieler zu ermitteln ist zu ermitteln wie viele Clients mit dem Server verbunden sind. Hierzu schauen wir uns and wie Server und client miteinandern kommunizieren.
+Eine Möglichkeit die Anzahl der Spieler zu ermitteln ist zu ermitteln wie viele Clients mit dem Server verbunden sind. Hierzu schauen wir uns an wie Server und Client miteinandern kommunizieren.
 
 ### Client-Server Kommunikation
 
-Gameserver und Clients kommunizieren durchgehend miteinander über das Netzwerk. Hierzu werden entweder UDP oder TCP genutzt.
+Gameserver und Clients kommunizieren durchgehend miteinander über das Netzwerk, um den aktuellen Zustand des Spiels oder die getroffenen Aktionen zu übermitteln. Hierzu werden entweder die Protokolle UDP oder TCP genutzt.
 
 #### TCP
 
@@ -107,7 +105,7 @@ Der Header eines UDP Pakets ist ziemlich simpel und besteht aus dem Quell-Port, 
 ![UDP-Paket (https://www.elektronik-kompendium.de)](./images/udp.gif){ #udp-paket width=550px }
 
 
-## aktive Verbindungen
+## Aktive Verbindungen
 
 Um nun aus beiden Protokollen eine Verbindung zwischen Client und Server zu messen müssen wir wissen wann eine Verbindung besteht.
 
@@ -119,6 +117,7 @@ Eine Verbindung zwischen Client und Server in UDP besteht wenn sowohl Client als
 
 Doch wie oder an welcher Stelle messen wir aktiven Verbindungen?
 
+\newpage
 ### Router
 
 Alle Pakete ins Internet oder vom Internet gehen über den Router. Er ist die Zentrale Schnittstelle ins Internet. Und da alle Pakete über diesen Knotenpunkt verlaufen können wir hier ermitteln wie viele aktive Verbindungen es zum jeweiligen Gameserver gibt. ....
@@ -137,7 +136,7 @@ In node wurden die Pakete "dgram" ^[https://nodejs.org/api/dgram.html] und "net"
 
 Der Forwarder hört auf einen gewählten Port und wartet auf eingehende Pakete. Wenn eine Verbindung aufgebaut wird, wird ein neuer Socket für diese Verbindung erstellt die die erhaltenen Daten an den Server weiterleitet. Immer wenn Nachrichten vom Server dann an diesen Socket gesendet werden, werden diese Daten dann zurück zum ursprünglichen Client weitergeleitet.
 
-Bilder des Codes zu diesen Proof of Concept sind im Anhang im [Abschnitt 7](#udp-forwarder) und [Abschnitt 8](#tcp-forwarder) enrhalten.
+Bilder des Codes zu diesen Proof of Concept sind im Anhang unter [Anhang 2](#udp-forwarder) und [Anhang 3](#tcp-forwarder) enthalten.
 
 Bei TCP werden bei beenden der Verbindung von seitens des Servers oder des Clients die entsprechen Sockets beendet und aus der Liste der aktiven Verbindungen gelöscht. Somit kann man zu jeder Zeit die beim erstellen des Servers zurückgegebene Funktion benutzen um die aktuelle Anzahl der aktiven Verbindungen zu erhalten.
 
@@ -157,13 +156,14 @@ Mit dem folgendem Befehl schneidet man zum Beispiel alle Pakete auf dem Interfac
 sudo tcpdump -n -i enp3s0 port 27015
 ```
 
+\newpage
 Als Ergebnis erhält man dann z.B. diesen Ausschnitt für UDP-Pakete
 
-![tcpdump UDP-Pakete](./images/tcpdump-udp.png){ #tcpdump-udp }
+![tcpdump UDP-Pakete](./images/tcpdump-udp.png){ #tcpdump-udp width=1200px }
 
 und diesen Ausschnitt für TCP-Pakete:
 
-![tcpdump UDP-Pakete](./images/tcpdump-tcp.png){ #tcpdump-tcp }
+![tcpdump TCP-Pakete](./images/tcpdump-tcp.png){ #tcpdump-tcp width=1200px }
 
 Aus diesen Paketen kann man die einzelnen Verbindungen herauslesen und somit die Anzahl der aktiven Verbindungen erhalten.
 
@@ -199,11 +199,11 @@ Mihilfe dieses Packets übermittelt der Client seinen auszuführenden Befehl.
 - SERVERDATA_RESPONSE_VALUE
 Der Server sendet in diesem Packet die Antwort des ausgeführten Befehls. Falls die Nachricht zu lang ist kann sie in mehreren Packeten an den Client übermittelt werden. [@valve_source_rcon_protocol_nodate]
 
-In der folgenden [Abbildung](#rcon-packet-flow) ist ein üblicher RCON-Packetfluss dargestellt.
+In der folgenden [Abbildung](#rcon-packet-flow) ist ein üblicher RCON-Packetfluss dargestellt:
 
 ![Packet Flow von RCON](./images/rcon-packet-flow.png){ #rcon-packet-flow width=1000px }
 
-
+\newpage
 ### Welche Kommandos gibt es ?
 
 Da RCON uns nur erlaubt Konsolen Befehle auf dem Server auszuführen ist jedem Hersteller selbst überlassen welche Befehle es gibt. Jedoch haben die meisten Implementation irgendeinen Befehl der es erlaubt eine Liste der aktiven Spieler auf dem Server zu erhalten.
@@ -237,43 +237,8 @@ Für andere Server gibt es wiederum andere Methoden die hier aber nicht benannt 
 
 Das Rcon Protokoll wird in der Implementation selbst implementiert und dort werden noch einige Besonderheiten aufgezeigt, die so nicht in der Spezifikation von Valve beschrieben sind.
 
+## Docker für Gamingserver
 
+Es wird Docker für die Instanzen der Gameserver genutzt statt die Anwendung direkt auf dem PC zu laufen. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Konzept
-
-Kommen wir nun zum Konzept der Applikation die dann im Abschnitt [Implementation](#implementation) durch einem Prototyp verwirklicht wird.
-
-### Applikation
-
-Es gibt eine Haupt-Applikation mit einer Schleife die immer wieder durchlaufen wird. Diese Schleife sammelt die Informationen aller Server und übermittelt Daten an eine Zentrale Datenstelle aus denen dann Statistiken erstellt werden können.
-
-### Server
-
-Die verschiedenen Serverarten müssen durch verschiedene Objekte dargestellt werden können. Diese Objekte bieten Funktionen um die Server zu starten, zu stoppen, den aktuellen Status erhalten zu können, und das abschalten des Servers bei Inaktivität.
-
-Das erhalten des aktuellen Zustandes eines Servers soll durch einen oder mehrere Methoden die in der Recherche ermitteln wurde durchgeführt werden.
-
-### Konfiguration
-
-Die Applikation muss durch eine Konfiguration die nötigen Informationen der Server und Schnittstelllen erhalten.
-
-### Interface zum User
-
-Die Software benötigt ein einfaches Interface zum User. Dieses Interface soll es erlauben den aktuellen Status der Server zu zeigen, sowie die Möglichkeit bieten die Server zu starten und zu stoppen. Zudem soll angezeigt werden, wenn Sevrer automatisch aufgrund von Inaktivität gestoppt wurden.
-
-Möglichkeiten hierzu sind eine Webseite die alle Funktionen durch eine dahinterliegende API zur Verfügung stellt. Oder alternativ einen Discord-Bot der mithilfe von Chat-Kommandos die möglichen Funktionen ausführt. Ein Discord-Bot eignet sich hiefür, da die Wahrscheinlichkeit das die Gruppe von Spielern die auf den Servern spielen möchte einen discord-Server besitzen, relativ hoch ist. ...
+Da Docker Images schon fertig konfigurierte Anwendungen sind, die einfach nur gestartet werden müssen,  ist es nicht nötig die jeweiligen Abhängigkeiten der einzelnen Server zu installieren und zu verwalten. Weiterhin kann es aufgrund von verschiedenen Versionen von Abhängigkeiten wie wine zu Kompatinilitätsproblemen kommen. Weiterhin können bei den Docker Containern beim starten und stoppen zusätzliche Funktionen ausgeführt werden, z.B. wird beim start der Server aktualisiert und beim Beenden wird die Spielwelt gesichert und dann erst der Server heruntergefahen. [@lamanos_steam-based_2021]

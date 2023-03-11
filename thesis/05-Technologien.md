@@ -5,9 +5,9 @@ Im Laufe der Bachelorarbeit greifen wir auf verschiedene Technologien zu. Einige
 
 ## Docker
 
-Docker ist eine Open-Source-Container-Platform mit der Nutzer Anwenungen isolieren kann.
+Docker ^[https://www.docker.com/] ist eine Open-Source-Container-Platform mit der Nutzer Anwenungen isolieren kann.
 
-![Docker Architecture (https://www.educative.io) ](https://www.educative.io/cdn-cgi/image/format=auto,width=3000,quality=75/api/edpresso/shot/4835301315837952/image/5086118547554304)
+![Docker Architecture (https://www.educative.io) ](https://www.educative.io/cdn-cgi/image/format=auto,width=3000,quality=75/api/edpresso/shot/4835301315837952/image/5086118547554304){ width=1500px }
 
 Um diese Isolierung zu erreichen, werden Funktionalitäten aus dem Linux-Kernel verwendet.
 Dazu gehören:
@@ -73,7 +73,9 @@ Ein Container ist somit eine Instanz eines Dockerimages welche gestartet gestopp
 
 ## InfluxDB und Grafana
 
-Wie im Messungsteil schon angemerkt werden für die Sammlung der Daten ImfluxDB und Grafana zum Darstellen der Messwerte genutzt.
+Die Daten der Messungen ergebenen eine sogenannte Time-Series. Eine Time-Series ist eine Reihe von DatenPunkten die anhand Ihrerer Zeit der Erstellung indiziert wird und einen bestimmten Wert zu genau diesem Zeitpunkt darstellt. InfluxDB ist dabei eine Time-Series Datenbank, die diese Daten effezient speichern und auslesen kann, da zum Teil mehrere Millionen von Datenpunkten pro Sekunde in die Datenbank geschrieben werden können. [@nair_introduction_2021]
+
+Grafana ist eine Open-Source Lösung für die Darstellung von analytischen Daten auf sogennanten Dashboards. [@shivang_what_2019] In diesem Fall wird es genutzt um die Time-Series Daten aus InfluxDB in verschiedenen Graphen darzustellen die später in der [Evaluierung](#evaluierung) verwendet werden.
 
 ## Node und Typescript
 

@@ -1,3 +1,4 @@
+\newpage
 # Testaufbau
 
 Die Testumgebung ([Abbildung](#id)) besteht aus 2 Hardware Computern und einem Mini-Computer. Auf einem Hardware Computer wurde Proxmox installiert und eine virtuelle Maschine erstellt. Das Betriebssystem aller PCs und VMs ist Debian 11 und es wurde überall Docker installiert. 
@@ -9,4 +10,4 @@ Alle Geräte befinden sich im selben Subnetz hinter einem PfSense Router. Dieser
 Die Daten der Messungen werden in der InfluxDB gespeichert und mittels Grafana die Graphen erstellt.
 
 
-![Testaufbau](./images/Testaufbau.png){ #id width=1500px  }
+![Testaufbau](./images/Testaufbau.png){ height=1500px }
