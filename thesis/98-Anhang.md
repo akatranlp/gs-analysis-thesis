@@ -21,13 +21,19 @@
 
 
 \newpage
-\hypertarget{class-diagram}{
+\hypertarget{class-diagram-1}{
 }
-\captionof{table}{Klassen Diagramm}
+\captionof{table}{Klassen Diagramm 1}
 
-![](./attachement/class-diagram.png)\
+![](./attachement/class-diagram1.png){ height=2500px }\
 
-\newpage
+
+\hypertarget{class-diagram-2}{
+}
+\captionof{table}{Klassen Diagramm 2}
+
+![](./attachement/class-diagram2.png){ height=2400px }\
+
 \hypertarget{sequence-diagram1}{
 }
 \captionof{table}{Sequenz Diagramm 1}
