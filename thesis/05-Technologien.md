@@ -55,7 +55,7 @@ Durch diese Trennung können Prozesse außerhalb Ihres eigenen Namespaces nicht 
 
 ### cgroups (control groups)
 
-Cgroups ist ein Ressourcen-Management-Subsystem, welches ausgewählten Prozessen nur eine gewisse Menge an Ressourcen, wie CPU-Auslastung, Netzwerk-auslastung und Arbeitsspeicher, zur Verfügung stellt. [@rosen_rosen-namespaces-cgroups-lxcpdf_2016] Hierüber können den Docker Containern, die Ressourcen eingeschränkt werden. 
+Cgroups ist ein Ressourcen-Management-Subsystem, welches ausgewählten Prozessen nur eine gewisse Menge an Ressourcen, wie CPU-Auslastung, Netzwerk-auslastung und Arbeitsspeicher, zur Verfügung stellt. [@rosen_rosen-namespaces-cgroups-lxcpdf_2016] Hierüber können den Docker Containern die Ressourcen eingeschränkt werden. 
 
 ### chroot
 
@@ -70,7 +70,7 @@ Ein Container ist somit eine Instanz eines Docker-Images, welche gestartet, gest
 
 ## InfluxDB und Grafana
 
-Die Daten der Messungen ergebenen eine sogenannte Time-Series. Eine Time-Series ist eine Reihe von Datenpunkten, die anhand ihrer Zeit der Erstellung indiziert wird und einen bestimmten Wert zu genau diesem Zeitpunkt darstellt. InfluxDB ist dabei eine Time-Series Datenbank, die diese Daten effizient speichern und auslesen kann, da zum Teil mehrere Millionen von Datenpunkten pro Sekunde in die Datenbank geschrieben werden können. [@nair_introduction_2021]
+Die Daten der Messungen ergeben eine sogenannte Time-Series. Eine Time-Series ist eine Reihe von Datenpunkten, die anhand ihrer Zeit der Erstellung indiziert wird und einen bestimmten Wert zu genau diesem Zeitpunkt darstellt. InfluxDB ist dabei eine Time-Series Datenbank, die diese Daten effizient speichern und auslesen kann, da zum Teil mehrere Millionen von Datenpunkten pro Sekunde in die Datenbank geschrieben werden können. [@nair_introduction_2021]
 
 Grafana ist eine Open-Source-Lösung für die Darstellung von analytischen Daten auf sogenannten Dashboards. [@shivang_what_2019] In diesem Fall wird es genutzt, um die Time-Series-Daten aus InfluxDB in verschiedenen Graphen darzustellen, die später in der [Evaluierung](#evaluierung) verwendet werden.
 
@@ -79,7 +79,7 @@ Grafana ist eine Open-Source-Lösung für die Darstellung von analytischen Daten
 Für die Implementation des Skripts zur Messung der Daten und des gesamten Prototyps wird Node^[https://nodejs.org/en/] mit der Programmiersprache Typescript^[https://www.typescriptlang.org/] verwendet. Diese Kombination wurde aufgrund meiner bisherigen Erfahrungen mit diesen Programmiersprachen gewählt.
 
 Node.js benutzt als Runtime die v8-Engine von Google. [@v8_documentation-v8_nodate]
-Node.js erlaubt es einem Javascript abseits des Browsers auch für Serveranwendungen und alleinstehende Skripte zu benutzten. Dabei benutzt nodejs einen non-blocking Eventloop, durch den man asynchrone Programme schreiben kann. [@nodejs_nodejs_nodate]
+Mit Node.js kann man Javascript auch abseits des Browsers für Serveranwendungen und alleinstehende Skripte nutzen. Dabei benutzt Node.js einen non-blocking Eventloop, durch den man asynchrone Programme schreiben kann. [@nodejs_nodejs_nodate]
 
 Darüber hinaus hat Microsoft 2012 die Programmiersprache Typescript entwickelt, um Javascript typsicher zu machen. Weil Typescript ein Superset von Javascript ist, ist Javascript-Code auch valider Typescript-Code aber nicht umgekehrt. Zudem bringt Typescript einige zusätzliche Features mit, die es in Javascript in dieser Form nicht gibt. Da Webbrowser aber nur Javascript verstehen und keinen eigenen Typescript-Compiler mitliefern, muss Typescript mithilfe des Typescript-Compilers vor der Auslieferung in Javascript transpiliert werden. Hierbei kann auch noch ausgewählt werden, in welche Javascript Version transpiliert werden soll, um großflächig die Kompatibiltät mit älteren Browsern festzustellen, obwohl man selbst beim Programmieren die neuesten Features von Javascript nutzen kann. [@microsoft_why_nodate]
 
@@ -90,7 +90,7 @@ Durch die Typsicherheit werden Bugs, die sonst erst zur Laufzeit auftreten würd
 
 Eine virtuelle Maschine ist ein virtueller Computer, die mithilfe von Software, einem so genannten Hypervisor, auf einem Host-Computer betrieben wird. Hierzu werden virtuelle Komponenten durch den Hypervisor emuliert, wie CPU, RAM, Festplattenspeicher usw. Die Ressourcen dieser Komponenten werden je nach Hypervisor-Typ entweder direkt von der Hardware genommen (Typ 1) oder vom Hostbetriebssystem (Typ 2). [@redhat_what_2022]
 
-Proxmox ist ein Open-Source-Typ1-Hypervisor, welcher mittels Qemu virtuelle Maschinen bereitstellen kann. Zusätzlich besteht die Möglichkeit LXC-Container direkt über Proxmox zu erstellen und zu verwalten. Qemu nutzt wiederum das im Kernel integrierte KVM-Modul, wodurch die virtuellen Maschinen ihre Ressourcen direkt von der Hardware erhalten können und nichts emuliert werden muss. [@proxmox_proxmox_nodate]
+Proxmox ist ein Open-Source-Typ1-Hypervisor, welcher mittels Qemu virtuelle Maschinen bereitstellen kann. Zusätzlich besteht die Möglichkeit, LXC-Container direkt über Proxmox zu erstellen und zu verwalten. Qemu nutzt wiederum das im Kernel integrierte KVM-Modul, wodurch die virtuellen Maschinen ihre Ressourcen direkt von der Hardware erhalten können und nichts emuliert werden muss. [@proxmox_proxmox_nodate]
 
 Proxmox und VMs werden im Testaufbau genutzt. Auf diesen wird jeweils Docker installiert und über Docker dann die Gamingserver gehostet.
 

@@ -3,7 +3,7 @@
 
 Das Internet hat die Welt komplett verändert.
 
-Es hat die Art wie wir kommunizieren so revolutioniert, dass es nun das präferierte Medium ist, welches wir tagtäglich nutzen. Bei fast allen Dingen, die wir heutzutage erledigen, nutzen wir auf irgendeine Weise das Internet. Wie wir an Informationen kommen, uns mit Freunden unterhalten und unsere Zeit vertreiben können wurden so auf den Kopf gestellt, 
+Es hat die Art, wie wir kommunizieren, so revolutioniert, dass es nun das präferierte Medium ist, welches wir tagtäglich nutzen. Bei fast allen Dingen, die wir heutzutage erledigen, nutzen wir auf irgendeine Weise das Internet. Wie wir an Informationen kommen, uns mit Freunden unterhalten und unsere Zeit vertreiben können, wurden so auf den Kopf gestellt, 
 dass wir uns gar nicht mehr an die Zeit vor dem Internet erinnern können. 
 [@dentzel_how_2013]
 
@@ -18,5 +18,5 @@ Ein Computer ist ein Server oder ein Client oder beides zugleich, doch was sind 
 
 Weiterhin ist die Architektur in den meisten Bereichen der Softwaretechnologien vertreten. 
 
-Zum Beispiel wird ein Server, in Form einer API, zwischen dem Client und einer Datenbank gebracht, damit der Client nur einen eingeschränkten Zugriff auf die Daten in der Datenbank erhält. Welche Funktionen und Informationen dem Client zur Verfügung stehen, wird auf dem Server definiert. [@sulyman_client-server_2014]
+Zum Beispiel wird ein Server, in Form einer API, zwischen dem Client und einer Datenbank gebraucht, damit der Client nur einen eingeschränkten Zugriff auf die Daten in der Datenbank erhält. Welche Funktionen und Informationen dem Client zur Verfügung stehen, wird auf dem Server definiert. [@sulyman_client-server_2014]
 

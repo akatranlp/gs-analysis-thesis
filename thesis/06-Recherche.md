@@ -15,7 +15,7 @@ Bei der vertikalen Skalierung, auch up/down scaling genannt, wird der aktuell ei
 
 #### Horizontale Skalierung
 
-Horizontales Skalieren, auch in/out scaling genannt, bedeutet den Arbeitsaufwand und die Anfragen auf mehrere Server zu verteilen. [@redswitches_server_2022] Wenn die Arbeitslast wieder geringer wird, werden einzelne Server abgeschaltet oder für andere Zwecke genutzt. [@el-rewini_advanced_2005]
+Horizontales Skalieren, auch in/out scaling genannt, bedeutet, den Arbeitsaufwand und die Anfragen auf mehrere Server zu verteilen. [@redswitches_server_2022] Wenn die Arbeitslast wieder geringer wird, werden einzelne Server abgeschaltet oder für andere Zwecke genutzt. [@el-rewini_advanced_2005]
 
 
 ### Was heißt bedarfsbedingtes Skalieren?
@@ -25,7 +25,7 @@ Bedarfsbedingt besteht aus den Worten "Bedarf" und "bedingt" und bedeutet, dass 
 
 ## Skalieren von dedizierten Gamingservern
 
-Wie lässt sich Skalierung bei Gamingservern darstellen? Die simpelste Art wäre es eine einzige Instanz entweder einzuschalten oder auszuschalten.
+Wie lässt sich Skalierung bei Gamingservern darstellen? Die simpelste Art wäre es, eine einzige Instanz entweder einzuschalten oder auszuschalten.
 
 Wenn man mehr als nur eine Instanz skalieren möchte, kommt es auf den jeweiligen Gameserver an, ob es Möglichkeiten gibt, mehere Instanzen zu erstellen. Hierbei kommt Minecraft in den Sinn. Es werden Weltdaten im Filesystem der jeweiligen Instanz gespeichert, wodurch es ohne Modifikation des Servers keine Möglichkeit gibt, zwei verschiedene Instanzen auf die gleichen Weltdaten zugreifen zu lassen. [@diaconu_manycraft_2013]
 
@@ -144,7 +144,7 @@ Hier legen wir ein Timeout Wert von 5 Sekunden fest [@fiedler_client_2016]; wenn
 
 ### Server
 
-Ermitteln der aktiven Verbindungen am Server selbst.
+Ermitteln der aktiven Verbindungen am Server selbst:
 
 Man kann mit verschiedenen Tools die Anzahl der Verbindungen am Server selbst messen, zum Beispiel mit "tcpdump"^[https://www.tcpdump.org/manpages/tcpdump.1.html].
 
@@ -171,7 +171,7 @@ Aus diesen Paketen kann man die einzelnen Verbindungen herauslesen und somit die
 
 ### Was ist Rcon?
 
-RCON ist ein TCP/IP basiertes Kommunikationsprotokoll, welches es erlaubt mit einer Fernzugriff-Konsole ("Remote Console") Konsolen-Befehle auf dem Server auszuführen.
+RCON ist ein TCP/IP basiertes Kommunikationsprotokoll, welches es erlaubt, mit einer Fernzugriff-Konsole ("Remote Console") Konsolen-Befehle auf dem Server auszuführen.
 [@valve_source_rcon_protocol_nodate]
 
 RCON wird inzwischen von mehreren Gameservern unterstützt, um die Server einfacher zu administrieren. Alle Valve Game-Server wie Counter Strike und Team Fortress 2 ^[https://developer.valvesoftware.com/wiki/Source_RCON_Protocol] sowie weitere Spiele von anderen Herstellern wie Minecraft^[https://wiki.vg/RCON] und Conan Exiles^[https://conanexiles.fandom.com/wiki/Rcon] unterstützen dieses Protokoll.
@@ -188,7 +188,7 @@ SERVERDATA_AUTH_RESPONSE aber nur in einer Antwort vom Server und SERVERDATA_EXE
 ![Rcon Types (https://developer.valvesoftware.com)](./images/rcon-paket-types.png)
 
 - SERVERDATA_AUTH:
-   In diesem Packet sendet der Client das beim Server eingestellte RCON-Passwort mit, um für den nachfolgenden Nachrichtenverkehr authentifiziert zu sein.
+   In diesem Paket sendet der Client das beim Server eingestellte RCON-Passwort mit, um für den nachfolgenden Nachrichtenverkehr authentifiziert zu sein.
 
 - SERVERDATA_AUTH_RESPONSE:
    Dabei handelt es sich um die Antwort auf das SERVERDATA_AUTH-Paket. Die ID dieses Pakets ist -1, wenn das mitgesendete Passwort falsch ist, und entspricht der ID der Anfrage, wenn es richtig ist. 
@@ -197,7 +197,7 @@ SERVERDATA_AUTH_RESPONSE aber nur in einer Antwort vom Server und SERVERDATA_EXE
    Mihilfe dieses Pakets übermittelt der Client seinen auszuführenden Befehl. 
 
 - SERVERDATA_RESPONSE_VALUE:
-   Der Server sendet in diesem Packet die Antwort des ausgeführten Befehls. Falls die Nachricht zu lang ist, kann sie in mehreren Paketen an den Client übermittelt werden. [@valve_source_rcon_protocol_nodate]
+   Der Server sendet in diesem Paket die Antwort des ausgeführten Befehls. Falls die Nachricht zu lang ist, kann sie in mehreren Paketen an den Client übermittelt werden. [@valve_source_rcon_protocol_nodate]
 
 In der folgenden [Abbildung](#rcon-packet-flow) ist ein üblicher RCON-Paketfluss dargestellt:
 
@@ -206,7 +206,7 @@ In der folgenden [Abbildung](#rcon-packet-flow) ist ein üblicher RCON-Paketflus
 \newpage
 ### Welche Kommandos gibt es?
 
-Da RCON uns nur erlaubt Konsolen Befehle auf dem Server auszuführen zu lassen, ist jedem Hersteller selbst überlassen, welche Befehle es gibt. Jedoch haben die meisten Implementierung irgendeinen Befehl, der es erlaubt, eine Liste der aktiven Spieler auf dem Server zu erhalten.
+Da RCON uns nur erlaubt, Konsolen Befehle auf dem Server auszuführen zu lassen, ist jedem Hersteller selbst überlassen, welche Befehle es gibt. Jedoch haben die meisten Implementierungen irgendeinen Befehl, der es erlaubt, eine Liste der aktiven Spieler auf dem Server zu erhalten.
 
 Minecraft hat den Befehl "list", Conan Exiles den Befehl "listplayers" und TF2 den Befehl "users". Der Output dieser Befehle ist auch nicht vereinheitlicht, weshalb diese jeweils anders analysiert werden müssen, um in einem Skript die genaue Anzahl der Spieler zu erhalten.
 
@@ -235,7 +235,7 @@ Idx | Char Name | Player name | User ID | Platform ID | Platform Name
 
 Für andere Server gibt es wiederum andere Methoden, die hier aber nicht benannt werden, da sie nicht Teil dieser Thesis sind.
 
-Das RCON-Protokoll wird in der Implementation selbst implementiert und dort werden noch einige Besonderheiten aufgezeigt, die so nicht in der Spezifikation von Valve beschrieben sind.
+Das RCON-Protokoll wird in der im [Implementationsteil](#rcon-client) der Arbeit selbst implementiert und dort werden noch einige Besonderheiten aufgezeigt, die so nicht in der Spezifikation von Valve beschrieben sind.
 
 ## Docker für Gamingserver
 

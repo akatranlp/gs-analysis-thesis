@@ -18,5 +18,6 @@ Dies wurde in dem Prototyp integriert und durch die Abbildungen bewiesen.
 
 Dies ist auch der Fall und wurde in dem Prototyp integriert.
 
+#### Abschließende Worte: {-}
 
-Insgesamt wurden alle definierten Ziele der Thesis erreicht und es ein funktionierender Prototyp entwickelt. Während des Vorgangs sind einige bereits angesprochene Probleme aufgetreten, die aber weitestgehend über Umwege behoben oder umgangen werden konnten. Zusammenfassend bin ich mit meiner Ausarbeitung sehr zufrieden und kann mit gutem Gewissen diese Arbeit hier präsentieren.
+Insgesamt wurden alle definierten Ziele der Thesis erreicht und ein funktionierender Prototyp entwickelt. Während des Vorgangs sind einige bereits angesprochene Probleme aufgetreten, die aber weitestgehend über Umwege behoben oder umgangen werden konnten. Zusammenfassend bin ich mit meiner Ausarbeitung sehr zufrieden und kann mit gutem Gewissen diese Arbeit hier präsentieren.

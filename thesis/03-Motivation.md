@@ -5,7 +5,9 @@ Ein immer weiter wachsender Bereich des Internets sind Videospiele. Als es die e
 
 Dieser Markt ist immer und immer weiter gewachsen, sodass er inzwischen fünfmal größer ist als die Filmindustrie. [@parreno_gaming_2022]
 
-Relativ früh in meiner Kindheit bekamen meine Eltern auch ihren ersten PC und es dauerte nicht lange, bis wir erste Computerspiele auf dem Rechner gespielt haben. Irgendwann kam der erste eigene PC und ich fing an mit Klassenkameraden zusammen Online-Spiele zu spielen. Hierüber fanden sich immer weitere Freundschaften, die bis zu diesem Tag anhalten und sich eine kleine Community daraus gebildet hat, die alle ein gemeinsames Hobby besitzen, Computerspiele.
+Relativ früh in meiner Kindheit bekamen meine Eltern auch ihren ersten PC und es dauerte nicht lange, bis wir erste Computerspiele auf dem Rechner gespielt haben. Irgendwann kam der erste eigene PC und ich fing an, mit Klassenkameraden zusammen Online-Spiele zu spielen. Hierüber fanden sich immer weitere Freundschaften, die bis zu
+diesem Tag anhalten, und es hat sich eine kleine Community daraus gebildet, die alle ein
+gemeinsames Hobby besitzen: Computerspiele.
 
 Ein Computerspiel kam dabei immer wieder zum Vorschein: Minecraft^[https://www.minecraft.net/de-de]. Minecraft ist ein Sandbox-Computerspiel, welches 2009 von Mojang veröffentlicht wurde, in dem man alleine oder auch zusammen mit Freunden auf einem Server die Welt nach eigenem Belieben verändern kann. [@mojang_informationen_2022]
 

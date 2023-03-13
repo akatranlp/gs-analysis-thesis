@@ -34,14 +34,14 @@
 
 ![](./attachement/class-diagram2.png){ height=2400px }\
 
-\hypertarget{sequence-diagram1}{
+\hypertarget{sequence-diagram-1}{
 }
 \captionof{table}{Sequenz Diagramm 1}
 
 ![](./attachement/sequence-diagram1.png)\
 
 \newpage
-\hypertarget{sequence-diagram2}{
+\hypertarget{sequence-diagram-2}{
 }
 \captionof{table}{Sequenz Diagramm 2}
 

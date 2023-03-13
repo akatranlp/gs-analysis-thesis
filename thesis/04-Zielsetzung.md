@@ -11,7 +11,7 @@ Folgende Ziele werden für diese Bachelorthesis definiert, die nach der Recherch
 
 Um eine Evaluierung der Ziele am Ende der Thesis treffen zu können, müssen Daten in regelmäßigen Abständen über den jeweils aktuellen Stand der Server erhoben werden.
 
-Hierzu werden folgende Dinge erhoben:
+Hierzu werden folgende Daten erhoben:
 
 - Name des Servers, der gemessen wird
 - Anzahl der Spieler auf dem Server, wenn es ein Gameserver ist
@@ -23,4 +23,4 @@ Die erste Datenerhebung fand zwischen dem 16.01.2023 und dem 23.01.2023 statt un
 In der folgenden Abbildung sind die Spielerzahlen der einzelnen Gameserver zu sehen.
 Die Server waren die ganze Woche hinweg eingeschaltet, obwohl über einen längeren Zeitraum kein Spieler mehr auf dem Server war.
 
-![Spielerzahlen Erste Woche](./images/playercount-first-week.png){ width=80% }
+![Spielerzahlen erste Woche](./images/playercount-first-week.png){ width=80% }

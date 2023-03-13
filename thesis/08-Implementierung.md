@@ -1,7 +1,7 @@
 \newpage
 # Implementierung
 
-Aus den Punkten der Recherche wird nun ein Prototyp erstellt. Der Prototyp besteht aus mehreren Teilen, die zum Teil miteinander verbunden sind oder getrennt voneinander betrachtet werden können.
+Aus den Punkten der Recherche wird nun ein Prototyp erstellt. Der Prototyp besteht aus mehreren Teilen, die zum Teil miteinander verbunden sind oder getrennt voneinander betrachtet werden können. Ein gesamtes Klassendiagramm ist im [Anhang 4/5](#class-diagram-1) zu finden.
 
 ## Config Parsing
 
@@ -14,16 +14,16 @@ Zum Start der Application wird die Konfigurationsdatei von einem Pfad, entweder 
 
 Der Prototyp liest zu Beginn eine Konfiguration ein und erstellt dann ein Objekt der Klasse Application.
 
-Diese Klasse ist die Main-Application und verwaltet alle Server-Objekte und stellt einige Funktionen zur Verfügung. Mit der Funktion "start" wird der Loop der App gestartet, diese führt je nach Konfiguration entweder "stopIfNeeded" oder "getServerInfoStatus". Beide Funktionen ermitteln den Status der Server und Speichern am Ende den Status in eine Klassenvariable. Der Unterschied ist, dass bei "stopIfNeeded" die für inaktiv gewerteten Server dann sofort heruntergefahren werden. Ein Sequenzdiagramm zu dieser Funktion befindet sich unter [Anhang 9](#sequence-diagram).
+\newpage
+![Application Klasse](./images/class-application.png){ width=900px }
 
-Dann wird der aktuelle Status der Server über die Funktion "sendDataToInflux" in InfluxDB gespeichert. Anschließend wird überprüft, ob die App weiterlaufen soll und führt den loop im nächsten Intervall erneut aus.
-
-Immer wenn Server über die Funktion "shutdownIfNeeded" heruntergefahren werden, wird eine Liste mit diesen Namen abgespeichert.
+Diese Klasse ist die Main-Application und verwaltet alle Server-Objekte und stellt einige Funktionen zur Verfügung. Mit der Funktion "start" wird der Loop der App gestartet, diese führt je nach Konfiguration entweder "stopIfNeeded" oder "getServerInfoStatus" aus. Beide Funktionen ermitteln den Status der Server und speichern am Ende den Status in einer Klassenvariable. Der Unterschied ist, dass bei "stopIfNeeded" die für inaktiv gewerteten Server dann sofort heruntergefahren werden. Ein Sequenzdiagramm zu dieser Funktion befindet sich unter [Anhang 6/7](#sequence-diagram-1).
 
 ![App Loop Funktion](./images/app-loop.png){ height=1000px }
 
+Dann wird der aktuelle Status der Server über die Funktion "sendDataToInflux" in InfluxDB gespeichert. Anschließend wird überprüft, ob die App weiterlaufen soll, und der Loop wird im nächsten Intervall erneut ausgeführt.
 
-![Application Klasse](./images/class-application.png){ width=800px }
+Immer wenn Server über die Funktion "shutdownIfNeeded" heruntergefahren werden, wird eine Liste mit diesen Namen abgespeichert.
 
 ## Discord-Bot
 
@@ -36,7 +36,7 @@ Wenn Server durch die Main-Application heruntergefahren werden, wird ein Event m
 
 ## API
 
-Weiterhin wurde auch eine API hinzugefügt, die auch mit der Main Application interagiert und die gleichen Funktionalitäten wie der Discord Bot bereitstellt. Eine Openapi.json ist in der repo enthalten und eine gerenderte Variante mit SwaggerUI ist im [Anhang 10](#swagger-ui) zu finden.
+Weiterhin wurde auch eine API hinzugefügt, die auch mit der Main Application interagiert und die gleichen Funktionalitäten wie der Discord Bot bereitstellt. Eine Openapi.json ist in der repo enthalten.
 
 \newpage
 
@@ -46,7 +46,7 @@ Weiterhin wurde auch eine API hinzugefügt, die auch mit der Main Application in
 
 Die Webapp ist das visuelle Interface zur API und zeigt den aktuellen Status der Server an. Weiterhin können über das Betätigen von Buttons die Server gestartet oder gestoppt werden. Für Server bei denen RCON aktiviert ist, können auch RCON-Commands direkt über die Webapp ausgeführt werden. Die Antworten der Kommandos werden dann in einem separaten Bereich unterhalb der Statustabelle angezeigt.
 
-Unter der Tabelle ist zusätzlich ein Button zum Stoppen der Server, falls sie inaktiv sind. Dies führt die "stopIfNeeded"-Funktion aus jedoch ohne den üblichen in der Konfiguration angegebenen Timeout, sondern sie werden sofort angeschaltet, wenn keine Spieler mehr online sind.
+Unter der Tabelle ist zusätzlich ein Button zum Stoppen der Server, falls sie inaktiv sind. Dies führt die "stopIfNeeded"-Funktion aus, jedoch ohne den üblichen in der Konfiguration angegebenen Timeout, sondern sie werden sofort abgeschaltet, wenn keine Spieler mehr online sind.
 
 Alle 5 Sekunden wird der aktuelle Status der Server abgefragt. Befindet sich in dieser Antwort eine Liste von Servern, die abgeschaltet wurden, werden diese ganz oben in der Webapp angezeigt. 
 
@@ -59,7 +59,7 @@ Die Webapp ist mit React erstellt worden und benutzt "react-query"^[https://tans
 
 Dieser Client ist die Prototyp Implementation des Konzeptes aus dem Rechercheteil. 
 
-Mit der "connect"-Funktion wird mithilfe des Pakets "node-ssh"^[https://www.npmjs.com/package/node-ssh] ssh Verbindung zum Host des Gameservers hergestellt. Die Funktion "getPlayerCount" bietet dann die Möglichkeit die Spieleranzahl zu ermitteln. 
+Mit der "connect"-Funktion wird mithilfe des Pakets "node-ssh"^[https://www.npmjs.com/package/node-ssh] eine ssh-Verbindung zum Host des Gameservers hergestellt. Die Funktion "getPlayerCount" bietet dann die Möglichkeit, die Spieleranzahl zu ermitteln. 
 
 Diese Funktion ermittelt die Anzahl der Spieler zwischen zwei Aufrufen dieser Funktion. Somit wird erst das Ende der Funktion beschrieben, um dann auf den Anfang einzugehen.
 
@@ -69,11 +69,11 @@ Es wird auf dem Server der Command tcpdump
 sudo tcpdump -n -i enp03s port 27015 > /tmp/27015
 ```
 
-ausgeführt, somit wird der Port des Spielsnach Datenpaketen abgehört und alle Pakete in die Datei /tmp/port geschrieben.
+ausgeführt, somit wird der Port des Spiels nach Datenpaketen abgehört und alle Pakete in die Datei /tmp/port geschrieben.
 
-Nun zum Start der Funktion. "tcpdump" wird gestoppt und die Datei mithilfe des Befehls "toch" erstellt, wenn sie zuvor nicht vorhanden war. Dann wird die Datei ausgelesen und der Inhalt verarbeitet.
+Nun zum Start der Funktion: "tcpdump" wird gestoppt und die Datei mithilfe des Befehls "toch" erstellt, wenn sie zuvor nicht vorhanden war. Dann wird die Datei ausgelesen und der Inhalt verarbeitet.
 
-Aus dem Schema von tcpdump ([Abb. 9](#tcpdump-tcp)) werden die IP-Adressen inklusive Ports entnommen und als from und to gespeichert. Dann wird analysiert, ob das Paket an den Server oder vom Server geschickt wurde und gezählt welcher Client beteiligt war. Zum Schluss wird diese Liste gefiltert und nur Clients in Betracht gezogen, die mehr als 5 Pakete an den Server geschickt und vom Server bekommen haben. Die Länge dieser Liste ist die Anzahl der Clients, die aktuell auf dem Server sind.
+Aus dem Schema von tcpdump ([Abb. 9](#tcpdump-tcp)) werden die IP-Adressen inklusive Ports entnommen und als from und to gespeichert. Dann wird analysiert, ob das Paket an den Server oder vom Server geschickt wurde und gezählt, welcher Client beteiligt war. Zum Schluss wird diese Liste gefiltert und nur Clients in Betracht gezogen, die mehr als 5 Pakete an den Server geschickt und vom Server bekommen haben. Die Länge dieser Liste ist die Anzahl der Clients, die aktuell auf dem Server sind.
 
 
 ## RCON-Client
@@ -88,17 +88,17 @@ Die Implementation wurde mit dem Package "PromiseSocket"^[https://www.npmjs.com/
 const response = await promiseSocket.read();
 ```
 
-Wie bereits im [Abschnitt 5.5.2](#struktur-der-packete) angesprochen müssen Rcon-Commands vor dem Senden authentifiziert werden.
+Wie bereits im [Abschnitt 5.5.2](#struktur-der-packete) angesprochen, müssen Rcon-Commands vor dem Senden authentifiziert werden.
 
-Mit der connect-Funktion des Clients wird nach dem Verbinden mit dem Server sofort eine Nachricht mit dem Passwort hinterhergeschickt. Dann wird auf die Antwort des Servers gewartet und dieses Paket analysiert. Hier gab es bereits Unterschiede in den verschiedenen Server-Implementationen der Gameserver. Der TF2-Server schickt vor der eigentlichen Auth-Response wie in der Spezifikation angegeben ein leeres SERVER_DATA_RESPONSE_VALUE- Package zurück. Minecraft und Conan-Exiles machen dies nicht. 
+Mit der connect-Funktion des Clients wird nach dem Verbinden mit dem Server sofort eine Nachricht mit dem Passwort hinterhergeschickt. Dann wird auf die Antwort des Servers gewartet und dieses Paket analysiert. Hier gab es bereits Unterschiede in den verschiedenen Server-Implementationen der Gameserver. Der TF2-Server schickt vor der eigentlichen Auth-Response, wie in der Spezifikation angegeben, ein leeres SERVER_DATA_RESPONSE_VALUE- Package zurück. Minecraft und Conan-Exiles machen dies nicht. 
 
 ![TF2 und Minecraft Authentication Response](./images/auth-response.png){ width=1800px }
 
-Somit wird in der Implementation nicht nur das zweite Paket analysiert, sondern es wird auf eine Antwort mit dem Typ 2 (SERVER_AUTH_RESPONSE) gewartet. Wenn die ID -1 zurückgeliefert wird, wird ein Error geworfen. Wenn die mitgeschickte ID zurückgeliefert wird, war die Authentifizierung erfolgreich, das Lesen nach neuen Paketen wird abgebrochen und die connect-Funktion verlassen. Der RCON-Client hat somit den Status connected erlangt.
+Somit wird in der Implementation nicht nur das zweite Paket analysiert, sondern es wird, auf eine Antwort mit dem Typ 2 (SERVER_AUTH_RESPONSE) gewartet. Wenn die ID -1 zurückgeliefert wird, wird ein Error geworfen. Wenn die mitgeschickte ID zurückgeliefert wird, war die Authentifizierung erfolgreich, das Lesen nach neuen Paketen wird abgebrochen und die connect-Funktion verlassen. Der RCON-Client hat somit den Status connected erlangt.
 
-Weiterhin bietet der RCON-Client die Möglichkeit mit der Funktion "sendCommand" einen Konsolen-Befehl zu senden. Hierzu wird ein Paket mit dem Typ 2 (SERVERDATA_EXECCOMMAND) und dem Befehl im Datensegment an den Server geschickt. Anschließend kommt eine Antwort vom Server mit dem Typ 0 mit der Response des Commands im Body und der gleichen ID wie der mitgeschickten.
+Weiterhin bietet der RCON-Client die Möglichkeit, mit der Funktion "sendCommand" einen Konsolen-Befehl zu senden. Hierzu wird ein Paket mit dem Typ 2 (SERVERDATA_EXECCOMMAND) und dem Befehl im Datensegment an den Server geschickt. Anschließend kommt eine Antwort vom Server mit dem Typ 0 mit der Response des Commands im Body und der gleichen ID wie der mitgeschickten.
 
-In eine Nachricht passen aber nicht mehr als 4096 Bytes, sodass unter Umständen die Antworten in mehreren Paketen verschickt werden, ohne dass das erste Paket Informationen darüber enthält, wie viele Pakete noch kommen sollen. Da Commands vom Server aber immer nacheinander ausgeführt werden, schlägt die Spezifikation vor zwei SERVERDATA_EXECCOMMAND Pakete zu senden, das erste mit dem tatsächlichen Command und ein zweites ohne Inhalt mit einer anderen ID. Somit ist beim Erhalt einer Antwort mit der ID des zweiten Commands der erste Command abgeschlossen und man kann alle erhaltenen Bodies der Pakete zusammenführen und als Antwort zurückgeben.
+In eine Nachricht passen aber nicht mehr als 4096 Bytes, sodass unter Umständen die Antworten in mehreren Paketen verschickt werden, ohne dass das erste Paket Informationen darüber enthält, wie viele Pakete noch kommen sollen. Da Commands vom Server aber immer nacheinander ausgeführt werden, schlägt die Spezifikation vor, zwei SERVERDATA_EXECCOMMAND Pakete zu senden, das erste mit dem tatsächlichen Command und ein zweites ohne Inhalt mit einer anderen ID. Somit ist beim Erhalt einer Antwort mit der ID des zweiten Commands der erste Command abgeschlossen und man kann alle erhaltenen Bodies der Pakete zusammenführen und als Antwort zurückgeben.
 
 Hierbei kam es aber wieder zu Problemen durch unterschiedliche Implementationen des RCON-Servers. Bei Conan Exiles sind die IDs der Antworten immer um eine Antwort verschoben. ([siehe Abbildung 21](#rcon-bug))
 
@@ -115,7 +115,7 @@ Alternativ gibt es die Funktion "sendCommandWithLongResponse". Diese Funktion wi
 
 ## Server Klassen
 
-Die Server Klassen stellen jeweils einen physischen oder virtuellen Server dar und haben Funktionen zum Erhalt des aktuellen Status, zum Stoppen, wenn der Server inaktiv ist, zum Stoppen, generell und zum Starten des Servers. Jede Server-Klasse hat ein dazugehöriges zod-Schema, welches die Konfiguration für diesen Servertypen überprüft, weshalb nach erfolgreicher Validierung davon ausgegangen werden kann, dass die nötigen Parameter vorhanden sind.
+Die Server Klassen stellen jeweils einen physischen oder virtuellen Server dar und haben Funktionen zum Erhalt des aktuellen Status, zum Stoppen, wenn der Server inaktiv ist, zum Stoppen generell und zum Starten des Servers. Jede Server-Klasse hat ein dazugehöriges zod-Schema, welches die Konfiguration für diesen Servertypen überprüft, weshalb nach erfolgreicher Validierung davon ausgegangen werden kann, dass die nötigen Parameter vorhanden sind.
 
 ### Hardware-Server und VM-Server
 
