@@ -9,7 +9,7 @@ dass wir uns gar nicht mehr an die Zeit vor dem Internet erinnern können.
 
 Doch woraus besteht das Internet:
 
-Das Internet besteht aus einer Vielzahl von Netzwerkkomponenten, wie Router und Switches und aus den Komponenten, die über diese Komponenten kommunizieren: Client und Server. Alle diese Geräte sind durch ein Netzwerk von Kabeln oder anderen Verbindungsmöglichkeiten miteinandern verbunden und ergeben ein weltumfassendes Netzwerk, welches wir das Internet nennen.
+Das Internet besteht aus einer Vielzahl von Netzwerkkomponenten, wie Router und Switches und aus den Komponenten, die über diese Komponenten kommunizieren: Client und Server. Alle diese Geräte sind durch ein Netzwerk von Kabeln oder anderen Verbindungsmöglichkeiten miteinander verbunden und ergeben ein weltumfassendes Netzwerk, welches wir das Internet nennen.
 [@brandt_wie_2021]
 
 ## Client - Server

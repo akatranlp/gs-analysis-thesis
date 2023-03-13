@@ -60,7 +60,7 @@ In den folgenden Abschnitten werden verschiedene Methoden gezeigt, wie die Anzah
 
 ## Netzwerkaktivität
 
-Eine Möglichkeit die Anzahl der Spieler zu erfahren ist zu ermitteln, wie viele Clients mit dem Server verbunden sind. Hierzu schauen wir uns an, wie Server und Client miteinandern kommunizieren.
+Eine Möglichkeit die Anzahl der Spieler zu erfahren ist zu ermitteln, wie viele Clients mit dem Server verbunden sind. Hierzu schauen wir uns an, wie Server und Client miteinander kommunizieren.
 
 ### Client-Server Kommunikation
 
@@ -70,9 +70,9 @@ Gameserver und Clients kommunizieren durchgehend miteinander über das Netzwerk,
 
 Das Transmission Control Protocol (TCP) ist eines der Haupt-Protokolle des Internets und wird zusätzlich zum Internet-Protokoll (IP) verwendet, um eine zuverlässige Übertragung von Paketen zu gewährleisten. 
 
-Ein TCP Paket besteht aus vielen Feldern im Header, die alle benötgt werden, um eine zuverlässige Datenübertragung zu gewährleisten ([s. Abb.](#tcp-paket)).
+Ein TCP Paket besteht aus vielen Feldern im Header, die alle benötigt werden, um eine zuverlässige Datenübertragung zu gewährleisten ([s. Abb.](#tcp-paket)).
 
-Dazu gehören unter anderem Quell-Port und Ziel-Port, Sequenz- und Bestätigungsnummer und eine Prüfsumme sowie einige Flags die den Fluss der Daten managen. [@gudabayev_tcp_2021]
+Dazu gehören unter anderem Quell-Port und Ziel-Port, Sequenz- und Bestätigungsnummer und eine Prüfsumme sowie einige Flags, die den Fluss der Daten managen. [@gudabayev_tcp_2021]
 
 
 ![TCP-Paket (https://www.elektronik-kompendium.de)](./images/tcp.gif){ #tcp-paket width=550px }
@@ -107,11 +107,11 @@ Der Header eines UDP Pakets ist ziemlich simpel und besteht aus dem Quell-Port, 
 
 ## Aktive Verbindungen
 
-Um nun aus beiden Protokollen eine Verbindung zwischen Client und Server zu messen, müssen wir wissen wann eine Verbindung besteht.
+Um nun aus beiden Protokollen eine Verbindung zwischen Client und Server zu messen, müssen wir wissen, wann eine Verbindung besteht.
 
 Bei TCP besteht eine Verbindung, wenn wir in der [Datentransferphase](#datentransferphase) des TCP sind. 
 
-Bei UDP sieht dies anders aus. Da es ein verbindungsloses Protokoll ist, gibt es in UDP kein Konzept der Verbindung und somit keine kontinuierliche Kommunikation zwischen Client und Server. Da aber ein Großteil der Gameserver nur über das UDP Daten vom Client erhalten und an den Client senden, müssen wir hier die Verbindung anders definieren. [@fiedler_client_2016]
+Bei UDP sieht dies anders aus. Da es ein verbindungsloses Protokoll ist, gibt es in UDP kein Konzept der Verbindung und somit keine kontinuierliche Kommunikation zwischen Client und Server. Da aber ein Großteil der Gameserver nur über das UDP-Daten vom Client erhalten und an den Client senden, müssen wir hier die Verbindung anders definieren. [@fiedler_client_2016]
 
 Eine Verbindung zwischen Client und Server in UDP besteht, wenn sowohl Client als auch Server in einem gewissen Zeitraum eine gewisse Anzahl an Paketen ausgetauscht haben. Wenn für einige Zeit keine Pakete verschickt werden, gilt die Verbindung als abgebrochen oder beendet. [@fiedler_client_2016]
 
@@ -138,7 +138,7 @@ Der Forwarder hört auf einen gewählten Port und wartet auf eingehende Pakete. 
 
 Bilder des Codes zu diesen Proof of Concept sind im Anhang unter [Anhang 2](#udp-forwarder) und [Anhang 3](#tcp-forwarder) enthalten.
 
-Bei TCP werden beim Beenden der Verbindung vonseiten des Servers oder des Clients die entsprechenden Sockets beendet und aus der Liste der aktiven Verbindungen gelöscht. Somit kann man zu jeder Zeit die beim Erstellen des Servers zurückgegebene Funktion benutzen, um die aktuelle Anzahl der aktiven Verbindungen zu erhalten.
+Bei TCP werden beim Beenden der Verbindung vonseiten des Servers oder des Clients die entsprechenden Sockets beendet und aus der Liste der aktiven Verbindungen gelöscht. Somit kann man zu jeder Zeit, die beim Erstellen des Servers zurückgegebene Funktion benutzen, um die aktuelle Anzahl der aktiven Verbindungen zu erhalten.
 
 Hier legen wir ein Timeout Wert von 5 Sekunden fest [@fiedler_client_2016]; wenn innerhalb dieser Zeit kein Paket mehr zwischen Client und Server verschickt wird, gilt die Verbindung als beendet und wird aus der Liste der aktiven Verbindungen gelöscht. Auch hier erhalten wir eine Funktion, mit der die aktuelle Anzahl der Verbindungen ermittelt werden kann.
 
@@ -146,11 +146,11 @@ Hier legen wir ein Timeout Wert von 5 Sekunden fest [@fiedler_client_2016]; wenn
 
 Ermitteln der aktiven Verbindungen am Server selbst.
 
-Man kann mit verschiedenen Tools die Anzahl der Verbindungen am Server selbst messen,  zum Beispiel mit "tcpdump"^[https://www.tcpdump.org/manpages/tcpdump.1.html].
+Man kann mit verschiedenen Tools die Anzahl der Verbindungen am Server selbst messen, zum Beispiel mit "tcpdump"^[https://www.tcpdump.org/manpages/tcpdump.1.html].
 
 Mit tcpdump kann man den Netzwerkverkehr des Servers mitschneiden und analysieren; zudem kann man es auf bestimmte Interfaces und bestimmte Ports beschränken, sodass nicht alle Pakete, die dem Server geschickt oder vom Server versendet werden, in dem Ergebnis auftauchen.
 
-Mit dem folgendem Befehl schneidet man zum Beispiel alle Pakete auf dem Interface enp03s auf port 27015 mit.
+Mit dem folgenden Befehl schneidet man zum Beispiel alle Pakete auf dem Interface enp03s auf port 27015 mit.
 
 ```bash
 sudo tcpdump -n -i enp3s0 port 27015
@@ -182,7 +182,7 @@ In der folgenden [Abbildung](#packet-structure) ist die Struktur eines RCON-Pake
 
 ![Rcon Packet Struktur (https://developer.valvesoftware.com)](./images/rcon-basic-paket.png){ #packet-structure }
 
-Es gibt insgesamt vier verschiedene Typen in der RCON-Spezifikation. Wobei SERVERDATA_AUTH_RESPONSE und SERVERDATA_EXECCOMMAND den selben Wert besitzen. Da 
+Es gibt insgesamt vier verschiedene Typen in der RCON-Spezifikation. Wobei SERVERDATA_AUTH_RESPONSE und SERVERDATA_EXECCOMMAND denselben Wert besitzen. Da 
 SERVERDATA_AUTH_RESPONSE aber nur in einer Antwort vom Server und SERVERDATA_EXECCOMMAND nur in einer Anfrage vom Client auftaucht, gibt es hier keine Überschneidungsprobleme. [@valve_source_rcon_protocol_nodate]
 
 ![Rcon Types (https://developer.valvesoftware.com)](./images/rcon-paket-types.png)
@@ -197,20 +197,20 @@ SERVERDATA_AUTH_RESPONSE aber nur in einer Antwort vom Server und SERVERDATA_EXE
    Mihilfe dieses Pakets übermittelt der Client seinen auszuführenden Befehl. 
 
 - SERVERDATA_RESPONSE_VALUE:
-   Der Server sendet in diesem Packet die Antwort des ausgeführten Befehls. Falls die Nachricht zu lang ist, kann sie in mehreren Packeten an den Client übermittelt werden. [@valve_source_rcon_protocol_nodate]
+   Der Server sendet in diesem Packet die Antwort des ausgeführten Befehls. Falls die Nachricht zu lang ist, kann sie in mehreren Paketen an den Client übermittelt werden. [@valve_source_rcon_protocol_nodate]
 
 In der folgenden [Abbildung](#rcon-packet-flow) ist ein üblicher RCON-Paketfluss dargestellt:
 
 ![Packet Flow von RCON](./images/rcon-packet-flow.png){ #rcon-packet-flow width=1000px }
 
 \newpage
-### Welche Kommandos gibt es ?
+### Welche Kommandos gibt es?
 
 Da RCON uns nur erlaubt Konsolen Befehle auf dem Server auszuführen zu lassen, ist jedem Hersteller selbst überlassen, welche Befehle es gibt. Jedoch haben die meisten Implementierung irgendeinen Befehl, der es erlaubt, eine Liste der aktiven Spieler auf dem Server zu erhalten.
 
 Minecraft hat den Befehl "list", Conan Exiles den Befehl "listplayers" und TF2 den Befehl "users". Der Output dieser Befehle ist auch nicht vereinheitlicht, weshalb diese jeweils anders analysiert werden müssen, um in einem Skript die genaue Anzahl der Spieler zu erhalten.
 
-Das Ergebnis des Befehls "list" in Minecraft leifert folgendes Ergebnis:
+Das Ergebnis des Befehls "list" in Minecraft liefert folgendes Ergebnis:
 
 ```
 There are 1 of a max of 20 players online: Akatran
@@ -239,6 +239,6 @@ Das RCON-Protokoll wird in der Implementation selbst implementiert und dort werd
 
 ## Docker für Gamingserver
 
-Es wird Docker für die Instanzen der Gameserver genutzt statt die Anwendung direkt auf dem PC laufen zu lassen. 
+Es wird Docker für die Instanzen der Gameserver genutzt, statt die Anwendung direkt auf dem PC laufen zu lassen. 
 
-Da Docker-Images schon fertig konfigurierte Anwendungen sind, die einfach nur gestartet werden müssen, ist es nicht nötig, die jeweiligen Abhängigkeiten der einzelnen Server zu installieren und zu verwalten. Darüber hinaus kann es aufgrund von verschiedenen Versionen von Abhängigkeiten wie "Wine"  zu Kompatinilitätsproblemen kommen. Weiterhin können bei den Docker-Containern beim Starten und Stoppen zusätzliche Funktionen ausgeführt werden; z.B. wird beim Start der Server aktualisiert und beim Beenden wird die Spielwelt gesichert und dann erst der Server heruntergefahren. [@lamanos_steam-based_2021]
+Da Docker-Images schon fertig konfigurierte Anwendungen sind, die einfach nur gestartet werden müssen, ist es nicht nötig, die jeweiligen Abhängigkeiten der einzelnen Server zu installieren und zu verwalten. Darüber hinaus kann es aufgrund von verschiedenen Versionen von Abhängigkeiten wie "Wine" zu Kompatibilitätsproblemen kommen. Weiterhin können bei den Docker-Containern beim Starten und Stoppen zusätzliche Funktionen ausgeführt werden; z.B. wird beim Start der Server aktualisiert und beim Beenden wird die Spielwelt gesichert und dann erst der Server heruntergefahren. [@lamanos_steam-based_2021]

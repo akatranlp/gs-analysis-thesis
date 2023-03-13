@@ -12,11 +12,11 @@ Wie in den Graphen der Evaluierung zu sehen ist, wurde die Betriebszeit der einz
 
 #### Wenn ein Server als inaktiv gewertet wird, soll er heruntergefahren werden. {-}
 
-Dies wurde im Prototypen integriert und durch die Abbildungen bewiesen.
+Dies wurde in dem Prototyp integriert und durch die Abbildungen bewiesen.
 
-#### Wenn kein Server mehr läuft soll der Hardware-Server / VM abgeschaltet werden. {-}
+#### Wenn kein Server mehr läuft, soll der Hardware-Server / VM abgeschaltet werden. {-}
 
-Dies ist auch der Fall und wurde im Prototypen integriert.
+Dies ist auch der Fall und wurde in dem Prototyp integriert.
 
 
-Insgesamt wurden alle definierten Ziele der Thesis erreicht und es ein funktionierender Prototyp entwickelt. Während des Vorgangs sind einige bereits angesprochene Probleme aufgetreten, die aber weitesgehend über Umwege behoben oder umgangen werden konnten. Zusammenfassend bin ich mit meiner Ausarbeitung sehr zufrieden und kann mit gutem Gewissen diese Arbeit hier präsentieren.
+Insgesamt wurden alle definierten Ziele der Thesis erreicht und es ein funktionierender Prototyp entwickelt. Während des Vorgangs sind einige bereits angesprochene Probleme aufgetreten, die aber weitestgehend über Umwege behoben oder umgangen werden konnten. Zusammenfassend bin ich mit meiner Ausarbeitung sehr zufrieden und kann mit gutem Gewissen diese Arbeit hier präsentieren.
