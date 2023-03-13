@@ -8,6 +8,9 @@ import { isProxmoxHostServer } from "../hostServer/proxmoxHostServer";
 import { StatusInfo, ServerStatus } from "gs-analysis-types";
 import { delay } from "utils";
 import { DockerHost } from "../dockerhost";
+import { createLogger } from "logger";
+
+const log = createLogger("VM-Server");
 
 export const vmServerInfoValidator = serverInfoValidator
     .omit({ type: true })

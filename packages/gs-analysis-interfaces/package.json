@@ -22,6 +22,7 @@
         "proxmox-api": "^1.0.0",
         "gs-analysis-types": "*",
         "rcon": "*",
+        "logger": "*",
         "ssh-playercount": "*",
         "ssh2": "^1.11.0",
         "utils": "*",

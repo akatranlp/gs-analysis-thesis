@@ -3,6 +3,9 @@ import { ServerStatus, StatusInfo } from "gs-analysis-types";
 import { Server, serverInfoValidator } from "../interfaces";
 import { DockerHost } from "../dockerhost";
 import { delay } from "utils";
+import { createLogger } from "logger";
+
+const log = createLogger("GameServer");
 
 export const gameServerInfoValidator = serverInfoValidator
     .omit({ type: true })

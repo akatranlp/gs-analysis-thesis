@@ -7,7 +7,7 @@ Mithilfe von Docker wurden die verschiedenen Gaming-Server bereitgestellt und au
 
 Alle Geräte befinden sich im selben Subnetz hinter einem PfSense Router. Dieser Router stellt die Gamingserver über Portforwarding dem Internet zur Verfügung.
 
-Die Daten der Messungen werden in der InfluxDB gespeichert und mittels Grafana die Graphen erstellt.
+Die Daten der Messungen werden in der InfluxDB gespeichert und mittels Grafana werden die Graphen erstellt.
 
 
 ![Testaufbau](./images/Testaufbau.png){ height=1500px }

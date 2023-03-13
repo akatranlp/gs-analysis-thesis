@@ -96,9 +96,11 @@ export class RconClient {
     throw new Error("No Response")
   }
 
-  disconnect(): Promise<void> {
-    this.connected = false;
-    return this.socket.end();
+  async disconnect(): Promise<void> {
+    if (this.isConnected()) {
+      this.connected = false;
+      return this.socket.end();
+    }
   }
 
   isConnected() {
