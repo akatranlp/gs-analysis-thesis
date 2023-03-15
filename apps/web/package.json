@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prod-build": "del /q /s ..\\gs-analysis\\dist\\public\\assets\\*.js && del /q /s ..\\gs-analysis\\dist\\public\\assets\\*.css && del /q ..\\gs-analysis\\dist\\public\\index.html  && xcopy /q /s /Y dist ..\\gs-analysis\\dist\\public",
-    "dev-build": "npm run build && npm run prod-build",
     "preview": "vite preview"
   },
   "dependencies": {
