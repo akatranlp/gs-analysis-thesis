@@ -42,11 +42,12 @@ const main = async () => {
 
     if (args.has("deployCommands")) {
         args.delete("deployCommands");
-        if (!config.discord.useDiscord) {
-            errorLog("In the config Discord-Credentials are not specified");
-            process.exit(1);
+        if (config.discord.useDiscord) {
+            await deployCommands(config);
+        } else {
+            errorLog("Could not send SlashCommands to Discord because in the config the Discord-Credentials are not specified");
+            mainLog("Proceed with running the Application!");
         }
-        await deployCommands(config);
     }
 
     if (args.has("bot")) {
