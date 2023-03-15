@@ -71,7 +71,7 @@ const main = async () => {
     }
 
     deletePathsContentRecursive(path.join(appPath, "public", "assets"), (pathname) => pathname.endsWith(".css") || pathname.endsWith(".js"));
-
+    copyPathsRecursiveFromTo(path.join(__dirname, "apps", "gs-analysis", "src", "public"), path.join(appPath, "public"));
     copyPathsRecursiveFromTo(webPath, path.join(appPath, "public"));
 }
 
