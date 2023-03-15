@@ -30,7 +30,7 @@ const appLog = createLogger("App");
 
 
 export class Application {
-  private influxClient: InfluxDB;
+  private influxClient?: InfluxDB;
   private intervalId?: NodeJS.Timer;
   private continueLoop = false;
   rootServers: Record<string, HostServer> = {};
@@ -42,7 +42,7 @@ export class Application {
   private discordBot: Client | null = null;
 
   constructor(public config: Config) {
-    this.influxClient = new InfluxDB({ url: config.influx.url, token: config.influx.token });
+    if (config.influx.useInflux) this.influxClient = new InfluxDB({ url: config.influx.url, token: config.influx.token });
 
     const rootServers = this.config.servers.filter(entry => entry.type === "hw").map(entry => hostServerInfoValidator.parse(entry));
     const vmServers = this.config.servers.filter(entry => entry.type === "vm").map(entry => vmServerInfoValidator.parse(entry));
@@ -120,8 +120,10 @@ export class Application {
   }
 
   private async sendDataToInflux() {
+    if (!this.config.influx.useInflux) return;
+
     if (!this.statusGraph) return;
-    const writeApi = this.influxClient.getWriteApi(this.config.influx.org, this.config.influx.bucket);
+    const writeApi = this.influxClient!.getWriteApi(this.config.influx.org, this.config.influx.bucket);
     const currentDate = new Date();
 
     influxLog("Start sending data!");

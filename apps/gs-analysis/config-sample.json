@@ -1,11 +1,13 @@
 {
     "discord": {
+        "useDiscord": true,
         "botToken": "token",
         "applicationId": "id",
         "guildId": "id",
         "channelId": "id"
     },
     "influx": {
+        "useInflux": true,
         "url": "url",
         "token": "token",
         "org": "org",
@@ -24,10 +26,25 @@
             "name": "hw-host01",
             "type": "hw",
             "stopIfNeeded": true,
+            "mac": "AA:BB:CC:DD:EE:FF",
             "ipAdress": "192.168.0.10",
             "username": "user",
             "password": "password",
-            "osType": "linux"
+            "hostType": "none"
+        },
+        {
+            "name": "proxmox-host",
+            "type": "hw",
+            "stopIfNeeded": true,
+            "mac": "AA:BB:CC:DD:EE:FF",
+            "ipAdress": "192.168.0.11",
+            "username": "user",
+            "password": "password",
+            "hostType": "proxmox",
+            "pmURL": "https://192.168.0.11:8086",
+            "pmUsername": "root@pam",
+            "pmTokenName": "token-name",
+            "pmToken": "uuid"
         },
         {
             "name": "vm-host01",
@@ -36,17 +53,29 @@
             "ipAdress": "192.168.0.50",
             "username": "user",
             "password": "password",
-            "osType": "linux",
-            "hostServer": "hw-host01"
+            "hostServer": "proxmox-host"
         },
         {
             "name": "mc-vanilla",
             "type": "gs",
             "stopIfNeeded": true,
             "gsType": "mc",
-            "hosting": "docker",
             "hostServer": "vm-host01",
-            "internalName": "mc-vanilla"
+            "internalName": "mc-vanilla",
+            "checkType": "common",
+            "hostInterface": "enp3s0",
+            "gamePort": 25565
+        },
+        {
+            "name": "tf2",
+            "type": "gs",
+            "stopIfNeeded": false,
+            "gsType": "tf2",
+            "hostServer": "hw-host01",
+            "internalName": "tf2",
+            "checkType": "rcon",
+            "rconPort": 27015,
+            "rconPassword": "password"
         }
     ]
 }

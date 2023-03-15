@@ -5,19 +5,30 @@ import dotenv from "dotenv";
 
 dotenv.config()
 
+const InfluxSchema = z.object({
+    useInflux: z.literal(true),
+    url: z.string().url().default(process.env.INFLUX_URL!),
+    token: z.string().default(process.env.INFLUX_TOKEN!),
+    org: z.string().default(process.env.INFLUX_ORG!),
+    bucket: z.string().default(process.env.INFLUX_BUCKET!),
+}).default({ useInflux: true }).or(z.object({
+    useInflux: z.literal(false)
+}));
+
+const Discordschema = z.object({
+    useDiscord: z.literal(true),
+    botToken: z.string().default(process.env.DISCORD_BOTTOKEN!),
+    applicationId: z.string().default(process.env.DISCORD_APPLICATIONID!),
+    guildId: z.string().default(process.env.DISCORD_GUILDID!),
+    channelId: z.string().default(process.env.DISCORD_CHANNELID!),
+}).default({ useDiscord: true }).or(z.object({
+    useDiscord: z.literal(false),
+}));
+
+
 export const configParser = z.object({
-    discord: z.object({
-        botToken: z.string().default(process.env.DISCORD_BOTTOKEN!),
-        applicationId: z.string().default(process.env.DISCORD_APPLICATIONID!),
-        guildId: z.string().default(process.env.DISCORD_GUILDID!),
-        channelId: z.string().default(process.env.DISCORD_CHANNELID!),
-    }).default({}),
-    influx: z.object({
-        url: z.string().url().default(process.env.INFLUX_URL!),
-        token: z.string().default(process.env.INFLUX_TOKEN!),
-        org: z.string().default(process.env.INFLUX_ORG!),
-        bucket: z.string().default(process.env.INFLUX_BUCKET!),
-    }).default({}),
+    discord: Discordschema,
+    influx: InfluxSchema,
     api: z.object({
         port: z.number().min(0).max(65535).default(process.env.API_PORT ? Number(process.env.API_PORT) : 3000),
     }).default({}),

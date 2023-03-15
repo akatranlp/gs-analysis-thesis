@@ -14,11 +14,9 @@ const main = async () => {
 
     const app = new Application(config);
 
-    if (process.argv.length > 3) {
-        console.error("false number of args!");
-        process.exit(1);
-    }
-    if (process.argv.length < 3) {
+    const args = new Set(process.argv.slice(2));
+
+    if (args.size === 0) {
         try {
             mainLog("Starting to launch entire Application!");
             await app.start();
@@ -28,11 +26,13 @@ const main = async () => {
             await fastify.listen({ port: config.api.port, host: "0.0.0.0" });
             apiLog(`Api is started on Port ${config.api.port}`);
 
-            const discordClient = createDiscordBot(app);
-            await discordClient.login(config.discord.botToken);
-            mainLog("Application is now online!");
+            if (config.discord.useDiscord) {
+                const discordClient = createDiscordBot(app);
+                await discordClient.login(config.discord.botToken);
+                app.installDiscordBot(discordClient);
+            }
 
-            app.installDiscordBot(discordClient);
+            mainLog("Application is now online!");
             return;
         } catch (err) {
             errorLog(err);
@@ -40,11 +40,36 @@ const main = async () => {
         }
     }
 
-    if (process.argv[2] === "deployCommands") {
+    if (args.has("deployCommands")) {
+        args.delete("deployCommands");
+        if (!config.discord.useDiscord) {
+            errorLog("In the config Discord-Credentials are not specified");
+            process.exit(1);
+        }
         await deployCommands(config);
-    } else if (process.argv[2] === "api") {
+    }
+
+    if (args.has("bot")) {
+        args.delete("bot");
+        if (!config.discord.useDiscord) {
+            errorLog("In the config Discord-Credentials are not specified");
+            process.exit(1);
+        }
         try {
-            mainLog("Starting to launch only the API!");
+            mainLog("Starting to launch the Discord Bot!");
+            const discordClient = createDiscordBot(app);
+            await discordClient.login(config.discord.botToken);
+            app.installDiscordBot(discordClient);
+        } catch (err) {
+            errorLog(err);
+            process.exit(1);
+        }
+    }
+
+    if (args.has("api")) {
+        args.delete("api");
+        try {
+            mainLog("Starting to launch the API!");
             const fastify = createFastifyApi(app);
             await fastify.listen({ port: config.api.port, host: "0.0.0.0" });
             apiLog(`Api is started on Port ${config.api.port}`);
@@ -52,25 +77,16 @@ const main = async () => {
             errorLog(err);
             process.exit(1);
         }
-    } else if (process.argv[2] === "bot") {
-        try {
-            mainLog("Starting to launch only the Discord Bot!");
-            const discordClient = createDiscordBot(app);
-            await discordClient.login(config.discord.botToken);
+    }
 
-            app.installDiscordBot(discordClient);
-        } catch (err) {
-            errorLog(err);
-            process.exit(1);
-        }
-    } else if (process.argv[2] === "app") {
-        mainLog("Starting to launch only the Main Application!");
+    if (args.has("app")) {
+        args.delete("app");
+        mainLog("Starting the Main Application!");
         await app.start();
         appLog("App is now running!");
-    } else {
-        errorLog("input is wrong");
-        process.exit(1);
     }
+
+    mainLog(`The following args could not be interprated: ${[...args.keys()].join(", ")}`);
 }
 
 main();
